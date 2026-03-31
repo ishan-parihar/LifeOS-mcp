@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
 export interface DbConfig {
   name: string;
@@ -18,7 +19,9 @@ export interface LifeOSConfig {
 }
 
 export function loadConfig(): LifeOSConfig {
-  const configPath = resolve(process.cwd(), "lifeos.config.json");
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  // Config lives at project root (one level up from dist/)
+  const configPath = resolve(__dirname, "..", "lifeos.config.json");
   const raw = readFileSync(configPath, "utf-8");
   return JSON.parse(raw) as LifeOSConfig;
 }
