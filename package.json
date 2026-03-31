@@ -1,0 +1,24 @@
+{
+  "name": "lifeos-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Notion LifeOS - AI agent interface for productivity, journaling, and strategic planning",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "lifeos-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc -w",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

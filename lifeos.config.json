@@ -1,0 +1,259 @@
+{
+  "apiVersion": "2025-09-03",
+  "rateLimit": {
+    "requestsPerSecond": 3,
+    "cacheTtlSeconds": 300
+  },
+  "databases": {
+    "activity_log": {
+      "name": "Activity Log",
+      "data_source_id": "a1769af1-3ab6-4f77-bbd0-57f920c62311",
+      "agent": "productivity",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "activity_type": "Activity Type",
+        "duration": "Duration",
+        "activity_notes": "Activity Notes",
+        "habit": "Habit",
+        "logged": "Logged",
+        "projects": "Projects"
+      }
+    },
+    "tasks": {
+      "name": "Tasks",
+      "data_source_id": "211c18ce-5aab-80dc-8402-000b170520ba",
+      "agent": "productivity",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "status": "Status",
+        "priority": "Priority",
+        "action_date": "Action Date",
+        "description": "Description",
+        "projects": "Projects",
+        "monitor": "Monitor",
+        "sprint_status": "Sprint Status"
+      }
+    },
+    "days": {
+      "name": "Days",
+      "data_source_id": "211c18ce-5aab-80c1-9734-000b16e33ee4",
+      "agent": "productivity",
+      "properties": {
+        "title": "Day Name",
+        "date": "Date",
+        "activity_log": "Activity Log",
+        "subjective_journal": "Subjective Journal",
+        "systemic_journal": "Systemic Journal",
+        "relational_journal": "Relational Journal",
+        "diet_log": "Diet Log",
+        "weeks": "Weeks",
+        "day_json": "Day_JSON"
+      }
+    },
+    "weeks": {
+      "name": "Weeks",
+      "data_source_id": "26cc18ce-5aab-8186-b005-000b06496fc4",
+      "agent": "productivity",
+      "properties": {
+        "title": "Week",
+        "week_number": "Week Number",
+        "week_name": "Week Name",
+        "week_start": "Week Start",
+        "week_end": "Week End",
+        "days": "Days",
+        "tasks": "Tasks",
+        "tasks_progress": "Tasks Progress",
+        "financial_log": "Financial Log",
+        "total_income": "Total Income",
+        "total_expenses": "Total Expenses",
+        "net_cashflow": "Net Cashflow",
+        "activity_breakdown": "activityBreakdown",
+        "category_summary": "Category Summary",
+        "key_learnings": "Key Learnings",
+        "status": "Status",
+        "week_json": "Week_JSON"
+      }
+    },
+    "projects": {
+      "name": "Projects",
+      "data_source_id": "211c18ce-5aab-8083-8068-000bed26453a",
+      "agent": "strategic",
+      "properties": {
+        "title": "Project",
+        "id": "ID",
+        "status": "Status",
+        "tasks": "Tasks",
+        "activity_log": "Activity Log",
+        "financial_log": "Financial Log",
+        "deadline": "Deadline",
+        "project_start": "Project Start",
+        "health": "Health",
+        "progress": "Progress",
+        "priority": "Priority",
+        "kpi": "KPI",
+        "duration": "Duration",
+        "project_summary": "Project Summary"
+      }
+    },
+    "subjective_journal": {
+      "name": "Subjective Journal",
+      "data_source_id": "211c18ce-5aab-8033-b28c-000bf9e3c193",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "days": "Days",
+        "psychograph": "Psychograph",
+        "subjective_json": "Subjective_JSON"
+      }
+    },
+    "relational_journal": {
+      "name": "Relational Journal",
+      "data_source_id": "211c18ce-5aab-8044-af90-000b961bb329",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "days": "Days",
+        "people": "People",
+        "relationship_status": "Relationship Status",
+        "relational_json": "Relational_JSON"
+      }
+    },
+    "systemic_journal": {
+      "name": "Systemic Journal",
+      "data_source_id": "211c18ce-5aab-8028-91e2-000b1f2b5c02",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "days": "Days",
+        "impact": "Impact",
+        "ai_generated_report": "AI Generated Report",
+        "directives_risk_log": "Directives & Risk Log",
+        "opportunities_strengths": "Opportunities & Strengths Log",
+        "projects": "Projects",
+        "systemic_json": "Systemic_JSON"
+      }
+    },
+    "financial_log": {
+      "name": "Financial Log",
+      "data_source_id": "265c18ce-5aab-80ce-8fec-000b920d6a27",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "amount": "Amount",
+        "category": "Category",
+        "transaction_type": "Transaction Type",
+        "capital_engine": "Capital Engine",
+        "notes": "Notes",
+        "financial_accounts": "Financial Accounts",
+        "weeks": "Weeks",
+        "months": "Months",
+        "projects": "Projects",
+        "financial_json": "Financial_JSON"
+      }
+    },
+    "diet_log": {
+      "name": "Diet Log",
+      "data_source_id": "265c18ce-5aab-80c8-9a65-000bd8bac9f3",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "date": "Date",
+        "days": "Days",
+        "nutrition": "Nutrition",
+        "diet_json": "Diet_JSON"
+      }
+    },
+    "quarterly_goals": {
+      "name": "Quarterly Goals",
+      "data_source_id": "26ac18ce-5aab-801e-af63-000b5f12e887",
+      "agent": "strategic",
+      "properties": {
+        "title": "Quarterly Objective",
+        "id": "ID",
+        "status": "Status",
+        "key_result_1": "Key Result 1",
+        "key_result_2": "Key Result 2",
+        "key_result_3": "Key Result 3",
+        "progress": "Progress",
+        "health": "Health",
+        "monitor": "Monitor",
+        "annual_goals": "Annual Goals",
+        "projects": "Projects",
+        "quarters": "Quarters",
+        "key_learning": "Key Learning",
+        "goal_progress": "Goal Progress",
+        "quarterly_goal_json": "Quarterly_Goal_JSON"
+      }
+    },
+    "annual_goals": {
+      "name": "Annual Goals",
+      "data_source_id": "26ac18ce-5aab-8057-b704-000b482fc59d",
+      "agent": "strategic",
+      "properties": {
+        "title": "Annual Theme",
+        "id": "ID",
+        "status": "Status",
+        "strategic_intent": "Strategic Intent",
+        "the_epic": "The Epic",
+        "target_value": "Target Value",
+        "success_condition": "Success Condition",
+        "key_risks": "Key Risks",
+        "strategic_approach": "Strategic Approach",
+        "goal_archetype": "Goal Archetype",
+        "goal_progress": "Goal Progress",
+        "monitor": "Monitor",
+        "quarterly_goals": "Quarterly Goals",
+        "years": "Years",
+        "annual_goal_report": "Annual_Goal_Report"
+      }
+    },
+    "directives_risk_log": {
+      "name": "Directives & Risk Log",
+      "data_source_id": "2acc18ce-5aab-80b8-a5e4-000b47cc91cf",
+      "agent": "strategic",
+      "properties": {
+        "title": "Directive / Risk",
+        "id": "ID",
+        "log_type": "Log Type",
+        "status": "Status",
+        "likelihood": "Likelihood",
+        "impact": "Impact",
+        "threat_level": "Threat Level",
+        "protocol_scenario": "Protocol / Scenario",
+        "last_assessed": "Last Assessed",
+        "projects": "Projects",
+        "quarterly_goals": "Quarterly Goals",
+        "systemic_journal": "Systemic Journal",
+        "drl_json": "DRL_JSON"
+      }
+    },
+    "opportunities_strengths": {
+      "name": "Opportunities & Strengths Log",
+      "data_source_id": "2acc18ce-5aab-80e8-984d-000b92fd6b9c",
+      "agent": "strategic",
+      "properties": {
+        "title": "Opportunity / Strength",
+        "log_type": "Log Type",
+        "status": "Status",
+        "leverage_score": "Leverage Score",
+        "description_activation": "Description & Activation",
+        "last_assessed": "Last Assessed",
+        "projects": "Projects",
+        "quarterly_goals": "Quarterly Goals",
+        "systemic_journal": "Systemic Journal"
+      }
+    }
+  }
+}
