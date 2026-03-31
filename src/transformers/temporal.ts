@@ -85,11 +85,11 @@ export function computePeriodMetrics(
     dailyHours.set(dayKey, (dailyHours.get(dayKey) || 0) + (a.durationHours ?? 0));
   }
 
-  // Tracked days = days that have at least one activity entry
-  const trackedDays = Math.max(1, dailyHours.size);
+  // Tracked days = total tracked hours converted to fractional days
+  const trackedDays = totalHours > 0 ? Math.round((totalHours / 24) * 100) / 100 : 0;
 
-  // Daily average computed from tracked days only (not calendar days)
-  const dailyAverage = totalHours / trackedDays;
+  // Daily average = totalHours / calendar days
+  const dailyAverage = totalHours / days;
 
   // Category breakdown
   const categoryBreakdown = new Map<string, { hours: number; count: number; pctOfTotal: number }>();

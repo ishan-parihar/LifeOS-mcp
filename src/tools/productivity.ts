@@ -71,7 +71,7 @@ export function registerProductivityTool(
         lines.push("");
         lines.push("## vs Targets (from Activity Types)");
         lines.push("");
-        lines.push(`> Averages from ${metrics.trackedDays} tracked days (${metrics.days} calendar). Targets as defined.`);
+        lines.push(`> Tracked: ${metrics.trackedDays.toFixed(2)} days (${metrics.totalHours.toFixed(1)}h ÷ 24) across ${metrics.days} calendar days. Targets as defined.`);
         lines.push("");
         lines.push("| Activity | Target/day | Actual/day | Δ | Status |");
         lines.push("|----------|-----------|------------|---|--------|");

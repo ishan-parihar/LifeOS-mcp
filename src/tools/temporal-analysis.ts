@@ -41,9 +41,9 @@ function periodMetricsToMarkdown(
   lines.push("## Period Summary");
   lines.push("");
   lines.push(`- **Calendar days:** ${metrics.days}`);
-  lines.push(`- **Tracked days:** ${metrics.trackedDays}`);
+  lines.push(`- **Tracked days:** ${metrics.trackedDays.toFixed(2)} (${metrics.totalHours.toFixed(1)}h ÷ 24)`);
   lines.push(`- **Total tracked:** ${metrics.totalHours.toFixed(1)}h`);
-  lines.push(`- **Daily average (per tracked day):** ${metrics.dailyAverage.toFixed(1)}h`);
+  lines.push(`- **Daily average (per calendar day):** ${metrics.dailyAverage.toFixed(1)}h`);
   lines.push(`- **Entries:** ${metrics.entriesCount}`);
   if (metrics.peakDay.date) {
     lines.push(`- **Peak day:** ${metrics.peakDay.date} (${metrics.peakDay.hours.toFixed(1)}h)`);

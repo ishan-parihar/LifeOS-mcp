@@ -22,10 +22,9 @@ function trajectoryToMarkdown(
   lines.push("## Tracking Context");
   lines.push("");
   lines.push(`- **Calendar days:** ${currentMetrics.days}`);
-  lines.push(`- **Tracked days (with activity):** ${currentMetrics.trackedDays}`);
-  lines.push(`- **Total tracked:** ${currentMetrics.totalHours.toFixed(1)}h`);
-  lines.push(`- **Daily average (per tracked day):** ${currentMetrics.dailyAverage.toFixed(1)}h`);
-  lines.push(`- Averages computed from tracked days only. Targets are as defined in Activity Types.`);
+  lines.push(`- **Tracked days:** ${currentMetrics.trackedDays.toFixed(2)} (${currentMetrics.totalHours.toFixed(1)}h ÷ 24)`);
+  lines.push(`- **Daily average (per calendar day):** ${currentMetrics.dailyAverage.toFixed(1)}h`);
+  lines.push(`- Targets are as defined in Activity Types. Per-day averages computed from tracked days.`);
   lines.push("");
 
   // Activity vs Targets
@@ -75,7 +74,7 @@ function trajectoryToMarkdown(
     if (gap < -0.3) underBudget.push(`${name} (${gap.toFixed(1)}h)`);
   }
 
-  lines.push(`- **Average tracked (per tracked day):** ${actualTotal.toFixed(1)}h`);
+  lines.push(`- **Tracked:** ${currentMetrics.totalHours.toFixed(1)}h over ${currentMetrics.trackedDays.toFixed(2)} days`);
   lines.push(`- **Target total:** ${targetTotal.toFixed(1)}h`);
   lines.push(`- **Surplus/Deficit:** ${(actualTotal - targetTotal).toFixed(1)}h`);
   lines.push("");
