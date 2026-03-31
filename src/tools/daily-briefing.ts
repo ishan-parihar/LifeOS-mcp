@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { extractTitle, extractString, extractDate, extractRelationCount } from "../transformers/shared.js";
+import { loadActivityTargets } from "../transformers/temporal.js";
 
 export function registerDailyBriefingTool(
   server: McpServer,
@@ -175,6 +176,52 @@ export function registerDailyBriefingTool(
           );
         }
         lines.push("");
+      }
+
+      // 6. Today vs Ideal Targets (from Activity Types)
+      try {
+        const atDb = getDbConfig(config, "activity_types");
+        const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
+        const targets = loadActivityTargets(atResult.results);
+
+        // Compute today's actual hours per activity type
+        const todayActivities = actResult.results.filter(p => {
+          const d = extractDate(p, "Date");
+          return d && d.startsWith(targetDate);
+        });
+
+        const todayHours = new Map<string, number>();
+        for (const p of todayActivities) {
+          const actType = extractString(p, "Activity Type");
+          const durProp = p.properties["Duration"];
+          let dur = 0;
+          if (durProp?.type === "formula" && (durProp as any).formula?.type === "number") {
+            dur = (durProp as any).formula.number ?? 0;
+          }
+          todayHours.set(actType, (todayHours.get(actType) || 0) + dur);
+        }
+
+        if (targets.size > 0) {
+          lines.push("## Today vs Ideal Day (from Activity Types)");
+          lines.push("");
+          lines.push("| Activity | Target | Actual | Status |");
+          lines.push("|----------|--------|--------|--------|");
+
+          for (const [name, target] of targets) {
+            const actual = todayHours.get(name) ?? 0;
+            const pct = target.targetDuration > 0 ? (actual / target.targetDuration * 100) : 0;
+            let status: string;
+            if (actual === 0 && target.targetDuration > 0) status = "⛔ Not Started";
+            else if (pct >= 80) status = "✅ On Track";
+            else if (pct >= 50) status = "⚠️ Partial";
+            else status = "⛔ Behind";
+
+            lines.push(`| ${name} | ${target.targetDuration}h | ${actual.toFixed(1)}h | ${status} |`);
+          }
+          lines.push("");
+        }
+      } catch {
+        // Activity Types not available — skip
       }
 
       return {

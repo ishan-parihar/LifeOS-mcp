@@ -18,7 +18,9 @@
         "activity_notes": "Activity Notes",
         "habit": "Habit",
         "logged": "Logged",
-        "projects": "Projects"
+        "projects": "Projects",
+        "days": "Days",
+        "activity_json": "Activity_JSON"
       }
     },
     "tasks": {
@@ -26,7 +28,7 @@
       "data_source_id": "211c18ce-5aab-80dc-8402-000b170520ba",
       "agent": "productivity",
       "properties": {
-        "title": "Name",
+        "title": "Tasks",
         "id": "ID",
         "status": "Status",
         "priority": "Priority",
@@ -34,7 +36,10 @@
         "description": "Description",
         "projects": "Projects",
         "monitor": "Monitor",
-        "sprint_status": "Sprint Status"
+        "sprint_status": "Sprint Status",
+        "weeks": "Weeks",
+        "parent_task": "Parent task",
+        "sub_task": "Sub-task"
       }
     },
     "days": {
@@ -42,14 +47,19 @@
       "data_source_id": "211c18ce-5aab-80c1-9734-000b16e33ee4",
       "agent": "productivity",
       "properties": {
-        "title": "Day Name",
+        "title": "Days",
+        "day_name": "Day Name",
         "date": "Date",
-        "activity_log": "Activity Log",
+        "day_number": "Day Number",
+        "year": "Year",
+        "status": "Status",
+        "activity_logs": "Activity Logs",
         "subjective_journal": "Subjective Journal",
         "systemic_journal": "Systemic Journal",
         "relational_journal": "Relational Journal",
         "diet_log": "Diet Log",
         "weeks": "Weeks",
+        "months": "Months",
         "day_json": "Day_JSON"
       }
     },
@@ -63,6 +73,8 @@
         "week_name": "Week Name",
         "week_start": "Week Start",
         "week_end": "Week End",
+        "year": "Year",
+        "status": "Status",
         "days": "Days",
         "tasks": "Tasks",
         "tasks_progress": "Tasks Progress",
@@ -73,8 +85,74 @@
         "activity_breakdown": "activityBreakdown",
         "category_summary": "Category Summary",
         "key_learnings": "Key Learnings",
-        "status": "Status",
         "week_json": "Week_JSON"
+      }
+    },
+    "months": {
+      "name": "Months",
+      "data_source_id": "265c18ce-5aab-801b-b693-000b4d8c0e1e",
+      "agent": "productivity",
+      "properties": {
+        "title": "Month",
+        "month_number": "Month Number",
+        "month_name": "Month Name",
+        "month_start": "Month Start",
+        "month_end": "Month End",
+        "month_range": "Month Range",
+        "year": "Year",
+        "status": "Status",
+        "days": "Days",
+        "quarters": "Quarters",
+        "financial_log": "Financial Log",
+        "total_income": "Total Income",
+        "total_expenses": "Total Expenses",
+        "net_cashflow": "Net Cashflow",
+        "net_worth_change": "Net Worth Change",
+        "ending_net_worth": "Ending Net Worth",
+        "category_summary": "Category Summary",
+        "accounts_snapshot": "Accounts Snapshot",
+        "capital_allocation_insight": "Capital Allocation Insight",
+        "cashflow_narrative": "Cashflow Narrative",
+        "significant_events": "Significant Events",
+        "key_learnings": "Key Learnings",
+        "quarterly_goals": "Quarterly Goals",
+        "month_json": "Month_JSON"
+      }
+    },
+    "quarters": {
+      "name": "Quarters",
+      "data_source_id": "211c18ce-5aab-8066-b0dc-000b3d26d28c",
+      "agent": "strategic",
+      "properties": {
+        "title": "Quarters",
+        "quarter_number": "Quarter Number",
+        "quarter_name": "Quarter Name",
+        "quarter_start": "Quarter Start",
+        "quarter_end": "Quarter End",
+        "quarter_range": "Quarter Range",
+        "status": "Status",
+        "months": "Months",
+        "years": "Years",
+        "quarterly_goals": "Quarterly Goals",
+        "total_income": "Total Income",
+        "total_expenses": "Total Expenses",
+        "net_cashflow": "Net Cashflow",
+        "category_summary": "Category Summary",
+        "key_learnings": "Key Learnings",
+        "quarter_report": "Quarter_Report"
+      }
+    },
+    "years": {
+      "name": "Years",
+      "data_source_id": "211c18ce-5aab-8056-bd18-000b43134660",
+      "agent": "strategic",
+      "properties": {
+        "title": "Years",
+        "status": "Status",
+        "year_range": "Year Range",
+        "quarters": "Quarters",
+        "annual_goals": "Annual Goals",
+        "year_report": "Year_Report"
       }
     },
     "projects": {
@@ -85,17 +163,36 @@
         "title": "Project",
         "id": "ID",
         "status": "Status",
+        "priority": "Priority",
         "tasks": "Tasks",
+        "campaigns": "Campaign Calendar",
+        "people": "People",
         "activity_log": "Activity Log",
         "financial_log": "Financial Log",
+        "quarterly_goals": "Quarterly Goals",
+        "systemic_journal": "Systemic Journal",
+        "directives_risks": "Directives & Risks",
+        "opportunities_strengths": "Opportunities & Strength",
         "deadline": "Deadline",
         "project_start": "Project Start",
         "health": "Health",
         "progress": "Progress",
-        "priority": "Priority",
         "kpi": "KPI",
+        "kpi_status": "KPI Status",
+        "strategy": "Strategy",
+        "project_summary": "Project Summary",
+        "review_date": "Review Date",
+        "projected_revenue": "Projected Revenue",
+        "required_budget": "Required Budget",
+        "cost_to_date": "Cost to Date",
+        "revenue": "Revenue",
+        "net_cashflow": "Net Cashflow",
         "duration": "Duration",
-        "project_summary": "Project Summary"
+        "project_progress": "Project Progress",
+        "monitor": "Monitor",
+        "depends_on": "Depends On",
+        "dependents": "Dependents",
+        "justify_this_project": "Justify This Project"
       }
     },
     "subjective_journal": {
@@ -253,6 +350,119 @@
         "projects": "Projects",
         "quarterly_goals": "Quarterly Goals",
         "systemic_journal": "Systemic Journal"
+      }
+    },
+    "people": {
+      "name": "People",
+      "data_source_id": "211c18ce-5aab-8083-9814-000bfd1913ad",
+      "agent": "strategic",
+      "properties": {
+        "title": "People",
+        "custom_name": "Custom Name",
+        "first_name": "First Name",
+        "city": "City",
+        "relationship_status": "Relationship Status",
+        "networking_profile": "Networking Profile",
+        "value_exchange_balance": "Value Exchange Balance",
+        "desired_trajectory": "Desired Trajectory",
+        "summary": "Summary",
+        "strategic_context": "Strategic Context",
+        "engagement_blueprint": "Engagement Blueprint",
+        "professional_domain": "Professional Domain & Influence",
+        "key_personal_intel": "Key Personal Intel",
+        "origin_context": "Origin Context",
+        "community": "Community",
+        "projects": "Projects",
+        "developmental_altitude": "Developmental Altitude",
+        "primary_center_of_intelligence": "Primary Center of Intelligence",
+        "aspirational_drive": "Aspirational Drive",
+        "core_shadow": "Core Shadow",
+        "explanatory_style": "Explanatory Style",
+        "stability_profile": "Stability Profile",
+        "dominant_power_strategy": "Dominant Power Strategy",
+        "primary_conflict_style": "Primary Conflict Style",
+        "temporal_focus": "Temporal Focus",
+        "influence_toolkit": "Influence Toolkit",
+        "connection_frequency": "In days Connection Frequency",
+        "reconnect_by": "Reconnect By",
+        "last_connected_date": "Last Connected Date"
+      }
+    },
+    "campaigns": {
+      "name": "Campaign Management",
+      "data_source_id": "fd3cc397-61f1-45ab-9586-a7a78457dd15",
+      "agent": "strategic",
+      "properties": {
+        "title": "Campaign",
+        "id": "ID",
+        "theme": "Theme",
+        "summary": "Summary",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "duration": "Duration",
+        "platforms": "Platforms",
+        "content_types": "Content Types",
+        "content_frequency": "Content Frequency",
+        "content_pipeline": "Content Pipeline",
+        "projects": "Projects",
+        "demographics": "Demographics",
+        "psychographics": "Psychographics",
+        "target_reach": "Target Reach",
+        "actual_reach": "Actual Reach",
+        "engagement_rate": "Engagement Rate",
+        "conversion_rate": "Conversion Rate",
+        "viral_score": "Viral Score",
+        "seo_keywords": "SEO Keywords",
+        "content_waterfall": "Content Waterfall",
+        "automation_workflows": "Automation Workflows"
+      }
+    },
+    "content_pipeline": {
+      "name": "Content Pipeline",
+      "data_source_id": "2e0c18ce-5aab-818f-add2-000b61669013",
+      "agent": "strategic",
+      "properties": {
+        "title": "Content Name",
+        "id": "ID",
+        "status": "Status",
+        "campaigns": "Campaigns",
+        "platforms": "Platforms",
+        "format": "Format",
+        "tone": "Tone",
+        "pillar": "Pillar",
+        "funnel_stage": "Funnel Stage",
+        "content_body": "Content Body",
+        "publish_date": "Publish Date",
+        "action_date": "Action Date",
+        "live_url": "Live URL",
+        "reach": "Reach",
+        "clicks": "Clicks",
+        "engagement": "Engagement",
+        "engagement_rate": "Engagement Rate",
+        "media_assets": "Media Assets",
+        "parent_content": "Parent Content",
+        "child_content": "Child Content"
+      }
+    },
+    "activity_types": {
+      "name": "Activity Types",
+      "data_source_id": "211c18ce-5aab-8052-8f28-000ba8e8d3b7",
+      "agent": "productivity",
+      "properties": {
+        "title": "Activity Types",
+        "frequency": "Frequency",
+        "duration": "Duration (in hrs)",
+        "habit": "Habit"
+      }
+    },
+    "reports": {
+      "name": "Reports",
+      "data_source_id": "334c18ce-5aab-8013-a792-000b2a054965",
+      "agent": "productivity",
+      "properties": {
+        "title": "Title",
+        "report": "Report",
+        "agent": "Agent"
       }
     }
   }

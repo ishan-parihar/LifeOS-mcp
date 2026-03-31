@@ -1,6 +1,6 @@
 import { LifeOSConfig } from "../config.js";
 import { Cache } from "./cache.js";
-import { NotionQueryResponse, NotionDataSource, NotionErrorResponse } from "./types.js";
+import { NotionQueryResponse, NotionDataSource, NotionErrorResponse, NotionPage, NotionCreatePageBody } from "./types.js";
 
 const BASE_URL = "https://api.notion.com";
 
@@ -77,6 +77,14 @@ export class NotionClient {
     );
 
     this.cache.set(cacheKey, result);
+    return result;
+  }
+
+  async createPage(body: NotionCreatePageBody): Promise<NotionPage> {
+    const result = await this.fetch<NotionPage>("/v1/pages", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
     return result;
   }
 

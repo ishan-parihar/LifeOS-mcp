@@ -11,6 +11,10 @@ import { registerProductivityTool } from "./tools/productivity.js";
 import { registerDailyBriefingTool } from "./tools/daily-briefing.js";
 import { registerJournalingTools } from "./tools/journaling.js";
 import { registerStrategicTools } from "./tools/strategic.js";
+import { registerCreateEntryTool } from "./tools/create-entry.js";
+import { registerCreateReportTool } from "./tools/create-report.js";
+import { registerTemporalAnalysisTool } from "./tools/temporal-analysis.js";
+import { registerTrajectoryTool } from "./tools/trajectory.js";
 
 const config = loadConfig();
 const token = process.env.NOTION_API_TOKEN;
@@ -23,23 +27,33 @@ const notion = new NotionClient(config, token);
 
 const server = new McpServer({
   name: "lifeos-mcp",
-  version: "0.1.0",
+  version: "0.2.0",
 });
 
-// Register all tools
+// Layer 1: Data Access
 registerDiscoverTool(server, config, notion);
 registerQueryTool(server, config, notion);
 registerActivityLogTool(server, config, notion);
 registerTasksTool(server, config, notion);
-registerProductivityTool(server, config, notion);
-registerDailyBriefingTool(server, config, notion);
 registerJournalingTools(server, config, notion);
 registerStrategicTools(server, config, notion);
+
+// Layer 2: Synthesis
+registerProductivityTool(server, config, notion);
+registerDailyBriefingTool(server, config, notion);
+
+// Layer 3: Temporal Analysis
+registerTemporalAnalysisTool(server, config, notion);
+registerTrajectoryTool(server, config, notion);
+
+// Layer 4: Write Tools
+registerCreateEntryTool(server, config, notion);
+registerCreateReportTool(server, config, notion);
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("LifeOS MCP server running on stdio");
+  console.error("LifeOS MCP server v0.2.0 running on stdio");
 }
 
 main().catch(console.error);
