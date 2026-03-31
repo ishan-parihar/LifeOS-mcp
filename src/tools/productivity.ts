@@ -8,7 +8,7 @@ import {
   computeProductivityReport,
   productivityReportToMarkdown,
 } from "../transformers/productivity.js";
-import { loadActivityTargets, scaleTargetsByTrackedTime, trackedHoursPerDay } from "../transformers/temporal.js";
+import { loadActivityTargets, computePeriodMetrics } from "../transformers/temporal.js";
 
 export function registerProductivityTool(
   server: McpServer,
@@ -17,7 +17,7 @@ export function registerProductivityTool(
 ) {
   server.tool(
     "lifeos_productivity_report",
-    "Generate a synthesized productivity report correlating activity log data with task completion. Shows time allocation, task performance, and automated insights. Compares actual vs ideal targets from Activity Types database. Use this for weekly reviews or daily check-ins.",
+    "Generate a synthesized productivity report correlating activity log data with task completion. Shows time allocation, task performance, and automated insights. Compares actual per-tracked-day averages vs Activity Types targets.",
     {
       date_from: z
         .string()
@@ -58,60 +58,45 @@ export function registerProductivityTool(
       const report = computeProductivityReport(activities, tasks, from, to);
       let markdown = productivityReportToMarkdown(report);
 
-      // Fetch Activity Types for ideal target comparison
+      // Fetch Activity Types for target comparison
       try {
         const atDb = getDbConfig(config, "activity_types");
         const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
-        const idealTargets = loadActivityTargets(atResult.results);
+        const targets = loadActivityTargets(atResult.results);
 
-        const days = Math.max(1, Math.ceil(
-          (new Date(to).getTime() - new Date(from).getTime()) / (1000 * 60 * 60 * 24)
-        ) + 1);
-
-        // Compute tracked hours and scale targets
-        const totalTracked = report.totalHours;
-        const trackedPerDay = totalTracked / days;
-        const idealTotal = [...idealTargets.values()].reduce((s, t) => s + t.targetDuration, 0);
-        const trackingRatio = idealTotal > 0 ? Math.min(1, trackedPerDay / idealTotal) : 1;
-        const scaledTargets = scaleTargetsByTrackedTime(idealTargets, trackedPerDay);
+        // Use tracked-day metrics for proper averaging
+        const metrics = computePeriodMetrics(activities, from, to, targets);
 
         const lines: string[] = [];
         lines.push("");
-        lines.push("## vs Scaled Targets (from Activity Types)");
+        lines.push("## vs Targets (from Activity Types)");
         lines.push("");
-        lines.push(`> Targets scaled to ${trackedPerDay.toFixed(1)}h/day tracked (${(trackingRatio * 100).toFixed(0)}% of 24h). Comparing against your tracked time, not a full day.`);
+        lines.push(`> Averages from ${metrics.trackedDays} tracked days (${metrics.days} calendar). Targets as defined.`);
         lines.push("");
-        lines.push("| Activity | Ideal | Scaled | Actual/day | Δ | Status |");
-        lines.push("|----------|-------|--------|------------|---|--------|");
+        lines.push("| Activity | Target/day | Actual/day | Δ | Status |");
+        lines.push("|----------|-----------|------------|---|--------|");
 
-        for (const [name, scaled] of scaledTargets) {
-          const catData = report.categoryBreakdown.get(name);
-          const actualDaily = catData ? catData.hours / days : 0;
-          const ideal = idealTargets.get(name);
-          const delta = actualDaily - scaled.targetDuration;
-          const deltaPct = scaled.targetDuration > 0 ? (delta / scaled.targetDuration * 100) : 0;
+        for (const [name, target] of targets) {
+          const actualDaily = metrics.categoryDailyAvg.get(name) ?? 0;
+          const delta = actualDaily - target.targetDuration;
+          const deltaPct = target.targetDuration > 0 ? (delta / target.targetDuration * 100) : 0;
 
           let status: string;
           if (Math.abs(deltaPct) <= 20) status = "✅";
           else if (Math.abs(deltaPct) <= 50) status = delta > 0 ? "⚠️ Over" : "⚠️ Under";
           else status = delta > 0 ? "⛔ Way Over" : "⛔ Way Under";
 
-          lines.push(`| ${name} | ${ideal?.targetDuration ?? 0}h | ${scaled.targetDuration.toFixed(1)}h | ${actualDaily.toFixed(1)}h | ${delta >= 0 ? "+" : ""}${deltaPct.toFixed(0)}% | ${status} |`);
+          lines.push(`| ${name} | ${target.targetDuration}h | ${actualDaily.toFixed(1)}h | ${delta >= 0 ? "+" : ""}${deltaPct.toFixed(0)}% | ${status} |`);
         }
         lines.push("");
 
         markdown += lines.join("\n");
       } catch {
-        // Activity Types DB not available — skip targets comparison
+        // Activity Types DB not available
       }
 
       return {
-        content: [
-          {
-            type: "text" as const,
-            text: markdown,
-          },
-        ],
+        content: [{ type: "text" as const, text: markdown }],
       };
     }
   );

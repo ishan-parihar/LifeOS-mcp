@@ -48,50 +48,15 @@ export function loadActivityTargets(
   return targets;
 }
 
-/**
- * Scale ideal targets proportionally based on actual tracked hours.
- * If you track 14h out of 24h, and your Work target is 6h/day,
- * the effective target becomes 6 * (14/24) = 3.5h.
- * This avoids penalizing untracked time as "under target".
- */
-export function scaleTargetsByTrackedTime(
-  targets: Map<string, ActivityTarget>,
-  actualTrackedHoursPerDay: number
-): Map<string, ActivityTarget> {
-  const idealTotalDaily = [...targets.values()].reduce((s, t) => s + t.targetDuration, 0);
-  if (idealTotalDaily <= 0 || actualTrackedHoursPerDay <= 0) return targets;
-
-  const scale = Math.min(1, actualTrackedHoursPerDay / idealTotalDaily);
-
-  const scaled = new Map<string, ActivityTarget>();
-  for (const [key, target] of targets) {
-    scaled.set(key, {
-      ...target,
-      targetDuration: target.targetDuration * scale,
-    });
-  }
-  return scaled;
-}
-
-/**
- * Compute the total tracked hours per day from a category breakdown over N days.
- */
-export function trackedHoursPerDay(
-  categoryBreakdown: Map<string, { hours: number; count: number; pctOfTotal: number }>,
-  days: number
-): number {
-  if (days <= 0) return 0;
-  const totalHours = [...categoryBreakdown.values()].reduce((s, d) => s + d.hours, 0);
-  return totalHours / days;
-}
-
 export interface PeriodMetrics {
   period: string;
   periodLabel: string;
   days: number;
+  trackedDays: number;
   totalHours: number;
   dailyAverage: number;
   categoryBreakdown: Map<string, { hours: number; count: number; pctOfTotal: number }>;
+  categoryDailyAvg: Map<string, number>;
   habitCompliance: number;
   habitTarget: number;
   peakDay: { date: string; hours: number };
@@ -111,7 +76,20 @@ export function computePeriodMetrics(
   const days = Math.max(1, Math.ceil((endMs - startMs) / (1000 * 60 * 60 * 24)) + 1);
 
   const totalHours = activities.reduce((s, e) => s + (e.durationHours ?? 0), 0);
-  const dailyAverage = totalHours / days;
+
+  // Daily hours per calendar day
+  const dailyHours = new Map<string, number>();
+  for (const a of activities) {
+    if (!a.date) continue;
+    const dayKey = a.date.split("T")[0];
+    dailyHours.set(dayKey, (dailyHours.get(dayKey) || 0) + (a.durationHours ?? 0));
+  }
+
+  // Tracked days = days that have at least one activity entry
+  const trackedDays = Math.max(1, dailyHours.size);
+
+  // Daily average computed from tracked days only (not calendar days)
+  const dailyAverage = totalHours / trackedDays;
 
   // Category breakdown
   const categoryBreakdown = new Map<string, { hours: number; count: number; pctOfTotal: number }>();
@@ -126,12 +104,10 @@ export function computePeriodMetrics(
     data.pctOfTotal = totalHours > 0 ? (data.hours / totalHours) * 100 : 0;
   }
 
-  // Daily hours
-  const dailyHours = new Map<string, number>();
-  for (const a of activities) {
-    if (!a.date) continue;
-    const dayKey = a.date.split("T")[0];
-    dailyHours.set(dayKey, (dailyHours.get(dayKey) || 0) + (a.durationHours ?? 0));
+  // Per-category daily average (from tracked days)
+  const categoryDailyAvg = new Map<string, number>();
+  for (const [cat, data] of categoryBreakdown) {
+    categoryDailyAvg.set(cat, data.hours / trackedDays);
   }
 
   // Peak and low
@@ -153,7 +129,7 @@ export function computePeriodMetrics(
     });
     const habitDays = new Set(habitEntries.map(a => a.date?.split("T")[0])).size;
     const totalHabitTargets = [...targets.values()].filter(t => t.isHabit).length;
-    habitTarget = totalHabitTargets * days;
+    habitTarget = totalHabitTargets * trackedDays;
     habitCompliance = habitDays > 0 ? (habitEntries.length / habitTarget) * 100 : 0;
   } else {
     const habitEntries = activities.filter(a => a.isHabit);
@@ -165,9 +141,11 @@ export function computePeriodMetrics(
     period: `${dateFrom} to ${dateTo}`,
     periodLabel: `${dateFrom} → ${dateTo}`,
     days,
+    trackedDays,
     totalHours,
     dailyAverage,
     categoryBreakdown,
+    categoryDailyAvg,
     habitCompliance: Math.min(100, habitCompliance),
     habitTarget,
     peakDay,

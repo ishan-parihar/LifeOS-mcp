@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { extractTitle, extractString, extractDate, extractRelationCount } from "../transformers/shared.js";
-import { loadActivityTargets, scaleTargetsByTrackedTime } from "../transformers/temporal.js";
+import { loadActivityTargets } from "../transformers/temporal.js";
 
 export function registerDailyBriefingTool(
   server: McpServer,
@@ -178,11 +178,11 @@ export function registerDailyBriefingTool(
         lines.push("");
       }
 
-      // 6. Today vs Scaled Targets (from Activity Types)
+      // 6. Today vs Targets (from Activity Types)
       try {
         const atDb = getDbConfig(config, "activity_types");
         const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
-        const idealTargets = loadActivityTargets(atResult.results);
+        const targets = loadActivityTargets(atResult.results);
 
         // Compute today's actual hours per activity type
         const todayActivities = actResult.results.filter(p => {
@@ -201,32 +201,27 @@ export function registerDailyBriefingTool(
           todayHours.set(actType, (todayHours.get(actType) || 0) + dur);
         }
 
-        if (idealTargets.size > 0) {
-          // Scale targets based on today's tracked hours
+        if (targets.size > 0) {
           const todayTracked = [...todayHours.values()].reduce((s, v) => s + v, 0);
-          const idealTotal = [...idealTargets.values()].reduce((s, t) => s + t.targetDuration, 0);
-          const trackingRatio = idealTotal > 0 ? Math.min(1, todayTracked / idealTotal) : 1;
-          const scaledTargets = scaleTargetsByTrackedTime(idealTargets, todayTracked);
 
-          lines.push("## Today vs Scaled Targets");
+          lines.push("## Today vs Targets");
           lines.push("");
-          lines.push(`> Tracked: ${todayTracked.toFixed(1)}h. Targets scaled to ${(trackingRatio * 100).toFixed(0)}% of ideal.`);
+          lines.push(`> Tracked today: ${todayTracked.toFixed(1)}h. Targets as defined in Activity Types.`);
           lines.push("");
-          lines.push("| Activity | Ideal | Scaled | Actual | Status |");
-          lines.push("|----------|-------|--------|--------|--------|");
+          lines.push("| Activity | Target | Actual | Status |");
+          lines.push("|----------|--------|--------|--------|");
 
-          for (const [name, scaled] of scaledTargets) {
-            const ideal = idealTargets.get(name);
+          for (const [name, target] of targets) {
             const actual = todayHours.get(name) ?? 0;
-            const pct = scaled.targetDuration > 0 ? (actual / scaled.targetDuration * 100) : 0;
+            const pct = target.targetDuration > 0 ? (actual / target.targetDuration * 100) : 0;
             let status: string;
-            if (actual === 0 && scaled.targetDuration > 0) status = "⛔ Not Started";
+            if (actual === 0 && target.targetDuration > 0) status = "⛔ Not Started";
             else if (pct >= 80) status = "✅ On Track";
             else if (pct >= 50) status = "⚠️ Partial";
             else if (pct > 0) status = "⛔ Behind";
             else status = "⛔ Not Started";
 
-            lines.push(`| ${name} | ${ideal?.targetDuration ?? 0}h | ${scaled.targetDuration.toFixed(1)}h | ${actual.toFixed(1)}h | ${status} |`);
+            lines.push(`| ${name} | ${target.targetDuration}h | ${actual.toFixed(1)}h | ${status} |`);
           }
           lines.push("");
         }

@@ -40,9 +40,10 @@ function periodMetricsToMarkdown(
   // Period Summary
   lines.push("## Period Summary");
   lines.push("");
-  lines.push(`- **Duration:** ${metrics.days} days`);
+  lines.push(`- **Calendar days:** ${metrics.days}`);
+  lines.push(`- **Tracked days:** ${metrics.trackedDays}`);
   lines.push(`- **Total tracked:** ${metrics.totalHours.toFixed(1)}h`);
-  lines.push(`- **Daily average:** ${metrics.dailyAverage.toFixed(1)}h/day`);
+  lines.push(`- **Daily average (per tracked day):** ${metrics.dailyAverage.toFixed(1)}h`);
   lines.push(`- **Entries:** ${metrics.entriesCount}`);
   if (metrics.peakDay.date) {
     lines.push(`- **Peak day:** ${metrics.peakDay.date} (${metrics.peakDay.hours.toFixed(1)}h)`);
@@ -57,8 +58,9 @@ function periodMetricsToMarkdown(
   lines.push("");
   const sorted = [...metrics.categoryBreakdown.entries()].sort((a, b) => b[1].hours - a[1].hours);
   for (const [cat, data] of sorted) {
+    const dailyAvg = metrics.categoryDailyAvg.get(cat) ?? 0;
     const bar = "█".repeat(Math.round(data.hours)) + "░".repeat(Math.max(0, 10 - Math.round(data.hours)));
-    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h (${data.pctOfTotal.toFixed(0)}%) ${bar} — ${data.count} entries`);
+    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h total (${dailyAvg.toFixed(1)}h/day avg) (${data.pctOfTotal.toFixed(0)}%) ${bar} — ${data.count} entries`);
   }
   lines.push("");
 
