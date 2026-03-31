@@ -48,6 +48,43 @@ export function loadActivityTargets(
   return targets;
 }
 
+/**
+ * Scale ideal targets proportionally based on actual tracked hours.
+ * If you track 14h out of 24h, and your Work target is 6h/day,
+ * the effective target becomes 6 * (14/24) = 3.5h.
+ * This avoids penalizing untracked time as "under target".
+ */
+export function scaleTargetsByTrackedTime(
+  targets: Map<string, ActivityTarget>,
+  actualTrackedHoursPerDay: number
+): Map<string, ActivityTarget> {
+  const idealTotalDaily = [...targets.values()].reduce((s, t) => s + t.targetDuration, 0);
+  if (idealTotalDaily <= 0 || actualTrackedHoursPerDay <= 0) return targets;
+
+  const scale = Math.min(1, actualTrackedHoursPerDay / idealTotalDaily);
+
+  const scaled = new Map<string, ActivityTarget>();
+  for (const [key, target] of targets) {
+    scaled.set(key, {
+      ...target,
+      targetDuration: target.targetDuration * scale,
+    });
+  }
+  return scaled;
+}
+
+/**
+ * Compute the total tracked hours per day from a category breakdown over N days.
+ */
+export function trackedHoursPerDay(
+  categoryBreakdown: Map<string, { hours: number; count: number; pctOfTotal: number }>,
+  days: number
+): number {
+  if (days <= 0) return 0;
+  const totalHours = [...categoryBreakdown.values()].reduce((s, d) => s + d.hours, 0);
+  return totalHours / days;
+}
+
 export interface PeriodMetrics {
   period: string;
   periodLabel: string;

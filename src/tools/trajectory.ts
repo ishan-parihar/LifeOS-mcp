@@ -4,13 +4,17 @@ import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { transformActivity } from "../transformers/activity.js";
 import {
-  loadActivityTargets, computePeriodMetrics, computeTrend,
-  mapTrajectory, type ActivityTarget, type TrendPoint
+  loadActivityTargets, scaleTargetsByTrackedTime, trackedHoursPerDay,
+  computePeriodMetrics, computeTrend, mapTrajectory,
+  type ActivityTarget, type TrendPoint
 } from "../transformers/temporal.js";
 
 function trajectoryToMarkdown(
   currentMetrics: ReturnType<typeof computePeriodMetrics>,
-  targets: Map<string, ActivityTarget>,
+  idealTargets: Map<string, ActivityTarget>,
+  scaledTargets: Map<string, ActivityTarget>,
+  trackingRatio: number,
+  trackedPerDay: number,
   trends: Map<string, ReturnType<typeof computeTrend>>
 ): string {
   const lines: string[] = [];
@@ -18,39 +22,53 @@ function trajectoryToMarkdown(
   lines.push(`# Trajectory Analysis — ${currentMetrics.periodLabel}`);
   lines.push("");
 
-  // Activity vs Ideal Targets
-  lines.push("## Activity vs Ideal Targets");
+  // Tracking context
+  const idealTotal = [...idealTargets.values()].reduce((s, t) => s + t.targetDuration, 0);
+  lines.push("## Tracking Context");
   lines.push("");
-  lines.push("| Activity | Target/day | Current/day | Δ | Trend | Status |");
-  lines.push("|----------|-----------|-------------|---|-------|--------|");
+  lines.push(`- **Tracked time:** ${trackedPerDay.toFixed(1)}h/day (out of 24h)`);
+  lines.push(`- **Tracking ratio:** ${(trackingRatio * 100).toFixed(0)}%`);
+  lines.push(`- **Ideal total allocation:** ${idealTotal.toFixed(1)}h/day`);
+  lines.push(`- **Scaled total allocation:** ${(idealTotal * trackingRatio).toFixed(1)}h/day`);
+  lines.push(`- Targets are scaled proportionally — comparisons reflect your tracked time only.`);
+  lines.push("");
+
+  // Activity vs Scaled Targets
+  lines.push("## Activity vs Scaled Targets");
+  lines.push("");
+  lines.push("| Activity | Ideal | Scaled | Actual/day | Δ | Status |");
+  lines.push("|----------|-------|--------|------------|---|--------|");
 
   const currentDaily = new Map<string, number>();
   for (const [cat, data] of currentMetrics.categoryBreakdown) {
     currentDaily.set(cat, data.hours / currentMetrics.days);
   }
 
-  const sortedEntries = [...targets.entries()].sort((a, b) => {
+  const sortedEntries = [...scaledTargets.entries()].sort((a, b) => {
     const aCurrent = currentDaily.get(a[0]) ?? 0;
     const bCurrent = currentDaily.get(b[0]) ?? 0;
     const aGap = Math.abs(aCurrent - a[1].targetDuration);
     const bGap = Math.abs(bCurrent - b[1].targetDuration);
-    return bGap - aGap; // Largest gaps first
+    return bGap - aGap;
   });
 
-  for (const [name, target] of sortedEntries) {
+  for (const [name, scaled] of sortedEntries) {
+    const ideal = idealTargets.get(name);
     const current = currentDaily.get(name) ?? 0;
-    const delta = current - target.targetDuration;
-    const deltaPct = target.targetDuration > 0 ? (delta / target.targetDuration * 100) : 0;
+    const delta = current - scaled.targetDuration;
+    const deltaPct = scaled.targetDuration > 0 ? (delta / scaled.targetDuration * 100) : 0;
     const trend = trends.get(name);
     const trendStr = trend ? (trend.trend === "improving" ? "↗️" : trend.trend === "declining" ? "↘️" : "→") : "—";
 
     let status: string;
     const absDeltaPct = Math.abs(deltaPct);
-    if (absDeltaPct <= 15) status = "✅ On Track";
-    else if (absDeltaPct <= 40) status = delta > 0 ? "⚠️ Over" : "⚠️ Under";
+    if (absDeltaPct <= 20) status = "✅ On Track";
+    else if (absDeltaPct <= 50) status = delta > 0 ? "⚠️ Over" : "⚠️ Under";
     else status = delta > 0 ? "⛔ Way Over" : "⛔ Way Under";
 
-    lines.push(`| ${name} | ${target.targetDuration}h | ${current.toFixed(1)}h | ${delta >= 0 ? "+" : ""}${deltaPct.toFixed(0)}% | ${trendStr} | ${status} |`);
+    lines.push(
+      `| ${name} | ${ideal?.targetDuration ?? 0}h | ${scaled.targetDuration.toFixed(1)}h | ${current.toFixed(1)}h | ${delta >= 0 ? "+" : ""}${deltaPct.toFixed(0)}% | ${status} |`
+    );
   }
   lines.push("");
 
@@ -58,70 +76,57 @@ function trajectoryToMarkdown(
   lines.push("## Daily Allocation Budget");
   lines.push("");
 
-  let idealTotal = 0;
-  let actualTotal = 0;
+  const actualTotal = [...currentDaily.values()].reduce((s, v) => s + v, 0);
+  const scaledTotal = [...scaledTargets.values()].reduce((s, t) => s + t.targetDuration, 0);
   const overBudget: string[] = [];
   const underBudget: string[] = [];
 
-  for (const [name, target] of targets) {
+  for (const [name, scaled] of scaledTargets) {
     const actual = currentDaily.get(name) ?? 0;
-    idealTotal += target.targetDuration;
-    actualTotal += actual;
-    const gap = actual - target.targetDuration;
-    if (gap > 0.5) overBudget.push(`${name} (+${gap.toFixed(1)}h)`);
-    if (gap < -0.5) underBudget.push(`${name} (${gap.toFixed(1)}h)`);
+    const gap = actual - scaled.targetDuration;
+    if (gap > 0.3) overBudget.push(`${name} (+${gap.toFixed(1)}h)`);
+    if (gap < -0.3) underBudget.push(`${name} (${gap.toFixed(1)}h)`);
   }
 
-  const untracked = Math.max(0, 24 - actualTotal);
-  lines.push(`- **Ideal allocation:** ${idealTotal.toFixed(1)}h across ${targets.size} activities`);
-  lines.push(`- **Actual tracked:** ${actualTotal.toFixed(1)}h/day`);
-  lines.push(`- **Untracked gap:** ${untracked.toFixed(1)}h`);
+  lines.push(`- **Tracked:** ${actualTotal.toFixed(1)}h/day`);
+  lines.push(`- **Scaled target total:** ${scaledTotal.toFixed(1)}h/day`);
+  lines.push(`- **Surplus/Deficit:** ${(actualTotal - scaledTotal).toFixed(1)}h`);
   lines.push("");
 
-  if (overBudget.length > 0) {
-    lines.push(`- **Over-budget:** ${overBudget.join(", ")}`);
-  }
-  if (underBudget.length > 0) {
-    lines.push(`- **Under-budget:** ${underBudget.join(", ")}`);
-  }
+  if (overBudget.length > 0) lines.push(`- **Over-budget:** ${overBudget.join(", ")}`);
+  if (underBudget.length > 0) lines.push(`- **Under-budget:** ${underBudget.join(", ")}`);
   lines.push("");
 
-  // Habit compliance
+  // Habit compliance (using scaled targets)
   lines.push("## Habit Compliance");
   lines.push("");
-  const habitTargets = [...targets.values()].filter(t => t.isHabit);
-  const habitEntries = currentMetrics.entriesCount > 0
-    ? [...currentMetrics.categoryBreakdown.entries()].filter(([name]) => targets.get(name)?.isHabit)
-    : [];
 
-  for (const [name, target] of targets) {
-    if (!target.isHabit) continue;
+  for (const [name, scaled] of scaledTargets) {
+    if (!scaled.isHabit) continue;
     const actual = currentDaily.get(name) ?? 0;
-    const compliance = target.targetDuration > 0 ? (actual / target.targetDuration * 100) : 0;
+    const compliance = scaled.targetDuration > 0 ? (actual / scaled.targetDuration * 100) : 0;
     const bar = "█".repeat(Math.min(10, Math.round(compliance / 10))) + "░".repeat(Math.max(0, 10 - Math.round(compliance / 10)));
-    lines.push(`- **${name}:** ${compliance.toFixed(0)}% ${bar} (${actual.toFixed(1)}h / ${target.targetDuration}h target)`);
+    lines.push(
+      `- **${name}:** ${compliance.toFixed(0)}% ${bar} (${actual.toFixed(1)}h / ${scaled.targetDuration.toFixed(1)}h scaled target [ideal: ${idealTargets.get(name)?.targetDuration ?? 0}h])`
+    );
   }
   lines.push("");
 
-  // Trajectory projection for key activities
+  // Trajectory projections (using scaled targets)
   const keyActivities = ["Work", "Recreation", "Sleep", "Workout"];
   const projectionLines: string[] = [];
   for (const act of keyActivities) {
     const trend = trends.get(act);
-    const target = targets.get(act);
-    if (!trend || !target) continue;
+    const scaled = scaledTargets.get(act);
+    const ideal = idealTargets.get(act);
+    if (!trend || !scaled) continue;
 
     const current = currentDaily.get(act) ?? 0;
-    const trajectory = mapTrajectory(
-      current,
-      target.targetDuration,
-      trend.slope,
-      30
-    );
+    const trajectory = mapTrajectory(current, scaled.targetDuration, trend.slope, 30);
     trajectory.metric = act;
 
-    projectionLines.push(`### ${act} → ${target.targetDuration}h/day`);
-    projectionLines.push(`- Current: ${current.toFixed(1)}h/day | Target: ${target.targetDuration}h/day`);
+    projectionLines.push(`### ${act} → ${scaled.targetDuration.toFixed(1)}h/day (scaled from ${ideal?.targetDuration ?? 0}h)`);
+    projectionLines.push(`- Current: ${current.toFixed(1)}h/day | Scaled target: ${scaled.targetDuration.toFixed(1)}h/day`);
     projectionLines.push(`- Trend: ${trend.slope > 0 ? "+" : ""}${trend.slope.toFixed(3)}h/day (${trend.trend})`);
     projectionLines.push(`- ${trajectory.insight}`);
     projectionLines.push("");
@@ -143,7 +148,7 @@ export function registerTrajectoryTool(
 ) {
   server.tool(
     "lifeos_trajectory",
-    "Map your activity trajectory against ideal targets defined in the Activity Types database. Compares current daily averages to targets, computes trends, and projects whether you're on track. Targets are derived from Activity Types — no hardcoded values.",
+    "Map your activity trajectory against ideal targets from Activity Types. Targets are automatically scaled based on your tracked hours — comparisons reflect only the time you actually tracked, not a full 24h day.",
     {
       date_from: z.string().describe("Start date (YYYY-MM-DD)"),
       date_to: z.string().describe("End date (YYYY-MM-DD)"),
@@ -155,7 +160,7 @@ export function registerTrajectoryTool(
 
       // Fetch Activity Types for ideal targets
       const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
-      const targets = loadActivityTargets(atResult.results);
+      const idealTargets = loadActivityTargets(atResult.results);
 
       // Fetch current period activities
       const currentResult = await notion.queryDataSource(actDb.data_source_id, {
@@ -169,7 +174,13 @@ export function registerTrajectoryTool(
         sorts: [{ property: "Date", direction: "ascending" }],
       });
       const currentActivities = currentResult.results.map(transformActivity);
-      const currentMetrics = computePeriodMetrics(currentActivities, date_from, date_to, targets);
+      const currentMetrics = computePeriodMetrics(currentActivities, date_from, date_to, idealTargets);
+
+      // Scale targets based on tracked hours
+      const trackedPerDay = trackedHoursPerDay(currentMetrics.categoryBreakdown, currentMetrics.days);
+      const idealTotal = [...idealTargets.values()].reduce((s, t) => s + t.targetDuration, 0);
+      const trackingRatio = idealTotal > 0 ? Math.min(1, trackedPerDay / idealTotal) : 1;
+      const scaledTargets = scaleTargetsByTrackedTime(idealTargets, trackedPerDay);
 
       // Fetch baseline period for trends
       const baselineStart = new Date(new Date(date_from).getTime() - baseline_weeks * 7 * 24 * 60 * 60 * 1000);
@@ -187,9 +198,8 @@ export function registerTrajectoryTool(
 
       // Compute per-activity trends
       const trends = new Map<string, ReturnType<typeof computeTrend>>();
-      for (const [actName] of targets) {
+      for (const [actName] of idealTargets) {
         const points: TrendPoint[] = [];
-        // Group by day and sum hours
         const dailyMap = new Map<string, number>();
         for (const a of allActivities) {
           if (a.activityType === actName && a.date) {
@@ -205,7 +215,9 @@ export function registerTrajectoryTool(
         }
       }
 
-      const markdown = trajectoryToMarkdown(currentMetrics, targets, trends);
+      const markdown = trajectoryToMarkdown(
+        currentMetrics, idealTargets, scaledTargets, trackingRatio, trackedPerDay, trends
+      );
 
       return {
         content: [{ type: "text" as const, text: markdown }],
