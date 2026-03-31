@@ -194,8 +194,8 @@ export function registerTemporalAnalysisTool(
           page_size: 1,
           filter: {
             and: [
-              { property: "Month Start", formula: { string: { on_or_after: date_from } } },
-              { property: "Month End", formula: { string: { on_or_before: date_to } } },
+              { property: "Month Start", formula: { date: { on_or_after: date_from } } },
+              { property: "Month End", formula: { date: { on_or_before: date_to } } },
             ],
           },
         });
