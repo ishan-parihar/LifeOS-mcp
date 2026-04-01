@@ -3,11 +3,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { transformActivity } from "../transformers/activity.js";
-import { synthesizeMonth, monthSynthesisToMarkdown, monthsComparisonToMarkdown } from "../transformers/month-synthesis.js";
+import { synthesizeMonth, monthSynthesisToMarkdown } from "../transformers/month-synthesis.js";
 import {
   computePeriodMetrics, computeBaseline, computeDeviation, computeTrend,
   loadActivityTargets, type PeriodMetrics, type BaselineMetrics, type TrendPoint
 } from "../transformers/temporal.js";
+import { resolveDates, PERIOD_PARAM, DATE_FROM_PARAM, DATE_TO_PARAM } from "../transformers/dates.js";
 
 async function fetchActivitiesForRange(
   notion: NotionClient, dataSourceId: string, dateFrom: string, dateTo: string
@@ -105,15 +106,19 @@ export function registerTemporalAnalysisTool(
 ) {
   server.tool(
     "lifeos_temporal_analysis",
-    "Analyze activity patterns across time periods with baseline comparison, deviation detection, and trend analysis. Fetches data from Activity Log and optionally from Months database for financial synthesis. Supports the full temporal hierarchy: day, week, month.",
+    "Activity pattern analysis with baseline comparison, deviation detection, and trend analysis. Compares current period against N prior weeks. Optionally includes Month-level financial synthesis. Date range: past_week covers 8 calendar days, past_month covers 31. Use with: lifeos_productivity_report (for summary context), lifeos_trajectory (for target compliance), lifeos_create_report (save analysis).",
     {
-      date_from: z.string().describe("Start date (YYYY-MM-DD)"),
-      date_to: z.string().describe("End date (YYYY-MM-DD)"),
+      period: PERIOD_PARAM,
+      date_from: DATE_FROM_PARAM,
+      date_to: DATE_TO_PARAM,
       scope: z.enum(["day", "week", "month"]).default("week").describe("Temporal granularity"),
       baseline_weeks: z.number().default(4).describe("Number of prior weeks to compute baseline"),
       include_financial: z.boolean().default(false).describe("Include Month-level financial synthesis if period spans a full month"),
     },
-    async ({ date_from, date_to, scope, baseline_weeks, include_financial }) => {
+    async ({ period, date_from, date_to, scope, baseline_weeks, include_financial }) => {
+      const resolved = resolveDates(period, date_from, date_to);
+      const date_from_r = resolved.date_from;
+      const date_to_r = resolved.date_to;
       const actDb = getDbConfig(config, "activity_log");
       const atDb = getDbConfig(config, "activity_types");
 
@@ -122,12 +127,12 @@ export function registerTemporalAnalysisTool(
       const targets = loadActivityTargets(atResult.results);
 
       // Fetch current period activities
-      const currentActivities = await fetchActivitiesForRange(notion, actDb.data_source_id, date_from, date_to);
-      const currentMetrics = computePeriodMetrics(currentActivities, date_from, date_to, targets);
+      const currentActivities = await fetchActivitiesForRange(notion, actDb.data_source_id, date_from_r, date_to_r);
+      const currentMetrics = computePeriodMetrics(currentActivities, date_from_r, date_to_r, targets);
 
       // Fetch baseline periods (N weeks before date_from)
-      const baselineStart = new Date(new Date(date_from).getTime() - baseline_weeks * 7 * 24 * 60 * 60 * 1000);
-      const baselineEnd = new Date(new Date(date_from).getTime() - 24 * 60 * 60 * 1000);
+      const baselineStart = new Date(new Date(date_from_r).getTime() - baseline_weeks * 7 * 24 * 60 * 60 * 1000);
+      const baselineEnd = new Date(new Date(date_from_r).getTime() - 24 * 60 * 60 * 1000);
       const baselineActivities = await fetchActivitiesForRange(
         notion, actDb.data_source_id,
         baselineStart.toISOString().split("T")[0],
@@ -196,8 +201,8 @@ export function registerTemporalAnalysisTool(
           page_size: 1,
           filter: {
             and: [
-              { property: "Month Start", formula: { date: { on_or_after: date_from } } },
-              { property: "Month End", formula: { date: { on_or_before: date_to } } },
+              { property: "Month Start", formula: { date: { on_or_after: date_from_r } } },
+              { property: "Month End", formula: { date: { on_or_before: date_to_r } } },
             ],
           },
         });
@@ -206,7 +211,9 @@ export function registerTemporalAnalysisTool(
         }
       }
 
-      const markdown = periodMetricsToMarkdown(currentMetrics, baseline, deviations, trends, monthSynthesis);
+      let markdown = `> Showing: ${resolved.rangeLabel}\n\n`;
+      markdown += periodMetricsToMarkdown(currentMetrics, baseline, deviations, trends, monthSynthesis);
+      markdown += `\n---\n\n> Next: Use \`lifeos_trajectory\` for target compliance, or \`lifeos_create_report\` to save this analysis.`;
 
       return {
         content: [{ type: "text" as const, text: markdown }],

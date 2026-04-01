@@ -164,35 +164,17 @@
         "id": "ID",
         "status": "Status",
         "priority": "Priority",
-        "tasks": "Tasks",
-        "campaigns": "Campaign Calendar",
-        "people": "People",
-        "activity_log": "Activity Log",
-        "financial_log": "Financial Log",
-        "quarterly_goals": "Quarterly Goals",
-        "systemic_journal": "Systemic Journal",
-        "directives_risks": "Directives & Risks",
-        "opportunities_strengths": "Opportunities & Strength",
         "deadline": "Deadline",
         "project_start": "Project Start",
         "health": "Health",
         "progress": "Progress",
         "kpi": "KPI",
-        "kpi_status": "KPI Status",
         "strategy": "Strategy",
         "project_summary": "Project Summary",
-        "review_date": "Review Date",
-        "projected_revenue": "Projected Revenue",
-        "required_budget": "Required Budget",
-        "cost_to_date": "Cost to Date",
-        "revenue": "Revenue",
-        "net_cashflow": "Net Cashflow",
-        "duration": "Duration",
-        "project_progress": "Project Progress",
-        "monitor": "Monitor",
-        "depends_on": "Depends On",
-        "dependents": "Dependents",
-        "justify_this_project": "Justify This Project"
+        "tasks": "Tasks",
+        "people": "People",
+        "quarterly_goals": "Quarterly Goals",
+        "campaigns": "Campaign Calendar"
       }
     },
     "subjective_journal": {
@@ -359,7 +341,6 @@
       "properties": {
         "title": "People",
         "custom_name": "Custom Name",
-        "first_name": "First Name",
         "city": "City",
         "relationship_status": "Relationship Status",
         "networking_profile": "Networking Profile",
@@ -371,7 +352,6 @@
         "professional_domain": "Professional Domain & Influence",
         "key_personal_intel": "Key Personal Intel",
         "origin_context": "Origin Context",
-        "community": "Community",
         "projects": "Projects",
         "developmental_altitude": "Developmental Altitude",
         "primary_center_of_intelligence": "Primary Center of Intelligence",
@@ -413,8 +393,7 @@
         "conversion_rate": "Conversion Rate",
         "viral_score": "Viral Score",
         "seo_keywords": "SEO Keywords",
-        "content_waterfall": "Content Waterfall",
-        "automation_workflows": "Automation Workflows"
+        "content_waterfall": "Content Waterfall"
       }
     },
     "content_pipeline": {
@@ -439,9 +418,8 @@
         "clicks": "Clicks",
         "engagement": "Engagement",
         "engagement_rate": "Engagement Rate",
-        "media_assets": "Media Assets",
         "parent_content": "Parent Content",
-        "child_content": "Child Content"
+        "projects": "Projects"
       }
     },
     "activity_types": {

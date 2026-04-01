@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { extractTitle, extractString, extractDate } from "../transformers/shared.js";
+import { resolveDates, PERIOD_PARAM, DATE_FROM_PARAM, DATE_TO_PARAM } from "../transformers/dates.js";
 
 function registerJournalTool(
   server: McpServer,
@@ -16,31 +17,30 @@ function registerJournalTool(
     toolName,
     description,
     {
-      date_from: z.string().optional().describe("Start date (YYYY-MM-DD)"),
-      date_to: z.string().optional().describe("End date (YYYY-MM-DD)"),
+      period: PERIOD_PARAM,
+      date_from: DATE_FROM_PARAM,
+      date_to: DATE_TO_PARAM,
       limit: z.number().optional().describe("Max entries (default: 20)"),
     },
-    async ({ date_from, date_to, limit = 20 }) => {
+    async ({ period, date_from, date_to, limit = 20 }) => {
+      const resolved = resolveDates(period, date_from, date_to);
       const db = getDbConfig(config, dbKey);
       const body: Record<string, unknown> = {
         page_size: Math.min(limit, 100),
         sorts: [{ property: "Date", direction: "descending" }],
       };
 
-      if (date_from || date_to) {
-        const df: Record<string, unknown> = { property: "Date" };
-        if (date_from && date_to) {
-          df.date = { after: `${date_from}T00:00:00Z`, before: `${date_to}T23:59:59Z` };
-        } else if (date_from) {
-          df.date = { after: `${date_from}T00:00:00Z` };
-        } else {
-          df.date = { before: `${date_to}T23:59:59Z` };
-        }
-        body.filter = df;
-      }
+      const df: Record<string, unknown> = { property: "Date" };
+      df.date = { after: `${resolved.date_from}T00:00:00Z`, before: `${resolved.date_to}T23:59:59Z` };
+      body.filter = df;
 
       const result = await notion.queryDataSource(db.data_source_id, body);
-      const lines = [`## ${db.name} (${result.results.length} entries)`, ""];
+      const lines = [
+        `## ${db.name} (${result.results.length} entries)`,
+        "",
+        `> Showing: ${resolved.rangeLabel}`,
+        "",
+      ];
 
       for (const p of result.results) {
         const name = extractTitle(p);
@@ -77,26 +77,26 @@ export function registerJournalingTools(
   registerJournalTool(
     server, config, notion, "subjective_journal",
     "lifeos_subjective_journal",
-    "Retrieve subjective journal entries tracking internal states, emotions, and reflections."
+    "Retrieve subjective journal entries (internal states, emotions, reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_relational_journal, lifeos_systemic_journal, lifeos_daily_briefing."
   );
   registerJournalTool(
     server, config, notion, "relational_journal",
     "lifeos_relational_journal",
-    "Retrieve relational journal entries tracking interactions and relationship reflections."
+    "Retrieve relational journal entries (interactions, relationship reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_subjective_journal, lifeos_people (People DB)."
   );
   registerJournalTool(
     server, config, notion, "systemic_journal",
     "lifeos_systemic_journal",
-    "Retrieve systemic journal entries tracking systems-level observations and patterns."
+    "Retrieve systemic journal entries (systems-level observations, project reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_subjective_journal, lifeos_projects."
   );
   registerJournalTool(
     server, config, notion, "financial_log",
     "lifeos_financial_log",
-    "Retrieve financial log entries with amounts, categories, and transaction types."
+    "Retrieve financial log entries (amounts, categories, transaction types). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_temporal_analysis (include_financial for month synthesis)."
   );
   registerJournalTool(
     server, config, notion, "diet_log",
     "lifeos_diet_log",
-    "Retrieve diet log entries tracking nutrition and meals."
+    "Retrieve diet log entries (nutrition, meals). Date range: past_day (2d), past_week (8d), past_month (31d)."
   );
 }

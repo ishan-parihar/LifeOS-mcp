@@ -11,7 +11,7 @@ export function registerCreateReportTool(
 ) {
   server.tool(
     "lifeos_create_report",
-    "Save an analysis or report to the Reports database as agent memory. Accepts full markdown content — auto-converted to Notion blocks. Returns the page URL for future reference.",
+    "Save an analysis or report to the Reports database as agent memory. Accepts full markdown — auto-converted to Notion blocks. Returns the page URL for future reference. Use after: lifeos_productivity_report, lifeos_temporal_analysis, lifeos_trajectory, or lifeos_weekday_patterns to persist insights across sessions.",
     {
       title: z.string().describe("Report title (e.g., 'Weekly Analysis — W13 2026', 'Trajectory: Work Hours Q1')"),
       agent: z.enum(["Psychologist", "Productivity", "Relational", "Strategic", "Nutritionist", "Financial"]),

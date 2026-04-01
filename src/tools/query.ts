@@ -38,7 +38,7 @@ export function registerQueryTool(
 ) {
   server.tool(
     "lifeos_query",
-    "Query any LifeOS database with custom filters. Property types are auto-detected from the database schema — filter_type is optional. Use lifeos_discover first to see available databases and property names.",
+    "Query any LifeOS database with custom filters. Property types are auto-detected from the database schema — filter_type is optional. Use with: lifeos_discover (to see available databases and property names first).",
     {
       database: z
         .string()
@@ -67,8 +67,12 @@ export function registerQueryTool(
         .number()
         .optional()
         .describe("Max results to return (default: 50)"),
+      return_properties: z
+        .array(z.string())
+        .optional()
+        .describe("Specific properties to return. If omitted, returns all properties."),
     },
-    async ({ database, filter_property, filter_value, filter_type, sort_property, sort_direction, limit = 50 }) => {
+    async ({ database, filter_property, filter_value, filter_type, sort_property, sort_direction, limit = 50, return_properties }) => {
       const db = getDbConfig(config, database);
       const body: Record<string, unknown> = { page_size: Math.min(limit, 100) };
 
@@ -125,9 +129,19 @@ export function registerQueryTool(
         const title = extractTitle(page);
         lines.push(`### ${title}`);
 
-        for (const [propKey, propName] of Object.entries(db.properties)) {
-          if (propName === "Name" || propName === "title" || propName === db.properties.title) continue;
-          if (propKey.endsWith("_json")) continue;
+        const propsToShow = return_properties && return_properties.length > 0
+          ? return_properties
+          : Object.entries(db.properties)
+              .filter(([propKey, propName]) => {
+                if (propName === "Name" || propName === "title" || propName === db.properties.title) return false;
+                if (propKey.endsWith("_json")) return false;
+                return true;
+              })
+              .map(([propKey]) => propKey);
+
+        for (const propKey of propsToShow) {
+          const propName = db.properties[propKey];
+          if (!propName) continue;
           const val = extractString(page, propName);
           if (val && val !== "0 related") {
             lines.push(`- **${propKey}:** ${val}`);

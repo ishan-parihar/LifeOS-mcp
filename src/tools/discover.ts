@@ -35,14 +35,18 @@ export function registerDiscoverTool(
 ) {
   server.tool(
     "lifeos_discover",
-    "Discover all LifeOS databases organized by the dual-flywheel architecture (Temporal Ledger Layer + Strategic/Tactical Layer). Shows schemas, property types, and available tools.",
+    "Discover all LifeOS databases and tools organized by the dual-flywheel architecture. Shows schemas, property types, tool inventory, and synergistic workflow patterns. Start here to understand what data is available and how tools work together.",
     {
       agent: z
         .enum(["productivity", "journaling", "strategic", "all"])
         .optional()
         .describe("Filter by agent domain. Default: all"),
+      verbose: z
+        .boolean()
+        .optional()
+        .describe("Show full property listings. Default: false (condensed output)"),
     },
-    async ({ agent = "all" }) => {
+    async ({ agent = "all", verbose = false }) => {
       const lines = [
         "# LifeOS — Database Architecture",
         "",
@@ -83,14 +87,20 @@ export function registerDiscoverTool(
         lines.push("");
 
         for (const [key, db] of layerDbs) {
-          lines.push(`### ${db.name} (\`${key}\`)`);
-          lines.push(`- **Data Source ID:** \`${db.data_source_id}\``);
-          lines.push(`- **Properties:**`);
-          for (const [propKey, propName] of Object.entries(db.properties)) {
-            lines.push(`  - \`${propKey}\` → "${propName}"`);
+          const propCount = Object.keys(db.properties).length;
+          if (verbose) {
+            lines.push(`### ${db.name} (\`${key}\`)`);
+            lines.push(`- **Data Source ID:** \`${db.data_source_id}\``);
+            lines.push(`- **Properties:**`);
+            for (const [propKey, propName] of Object.entries(db.properties)) {
+              lines.push(`  - \`${propKey}\` → "${propName}"`);
+            }
+            lines.push("");
+          } else {
+            lines.push(`### ${db.name} (\`${key}\`) — ${propCount} properties | ${layer}`);
           }
-          lines.push("");
         }
+        if (!verbose) lines.push("");
       }
 
       // Tools summary
@@ -113,10 +123,69 @@ export function registerDiscoverTool(
       lines.push("### Layer 3: Temporal Analysis");
       lines.push("- `lifeos_temporal_analysis` — Baselines, deviations, trends across any time period");
       lines.push("- `lifeos_trajectory` — Map activity vs ideal targets from Activity Types DB");
+      lines.push("- `lifeos_weekday_patterns` — Per-weekday activity profiles, anomaly detection, suggested plans");
       lines.push("");
       lines.push("### Layer 4: Write Tools");
       lines.push("- `lifeos_create_entry` — Create tasks, journals, projects, campaigns, content, people");
       lines.push("- `lifeos_create_report` — Save analysis as agent memory in Reports DB");
+      lines.push("");
+      lines.push("### Layer 5: Update & Archive Tools");
+      lines.push("- `lifeos_find_entry` — Find entries by name (resolve name → page_id)");
+      lines.push("- `lifeos_update_entry` — Update page properties (status, progress, dates, etc.)");
+      lines.push("- `lifeos_archive_entry` — Archive (soft-delete) a page");
+      lines.push("");
+
+      // Synergistic Workflows
+      lines.push("## Synergistic Workflows");
+      lines.push("");
+      lines.push("Date presets: past_day (2 calendar days), past_week (8d), past_month (31d). All include today up to now.");
+      lines.push("");
+
+      lines.push("### Morning Briefing (daily planning)");
+      lines.push("1. `lifeos_daily_briefing` — tasks, activities, pattern comparison, suggested plan");
+      lines.push("2. `lifeos_weekday_patterns` — deeper weekday analysis, consistency scores");
+      lines.push("3. `lifeos_trajectory` — target gaps to address today");
+      lines.push("");
+
+      lines.push("### Weekly Review (end-of-week analysis)");
+      lines.push("1. `lifeos_productivity_report` (period: past_week) — allocation vs targets");
+      lines.push("2. `lifeos_temporal_analysis` (period: past_week) — baselines and trends");
+      lines.push("3. `lifeos_trajectory` (period: past_week) — compliance and projections");
+      lines.push("4. `lifeos_create_report` — save analysis as agent memory");
+      lines.push("");
+
+      lines.push("### Missing Data Recovery (fill activity log gaps)");
+      lines.push("1. `lifeos_activity_log` — check what days have entries");
+      lines.push("2. `lifeos_weekday_patterns` — typical pattern for the missing weekday");
+      lines.push("3. Present suggestions to user for confirmation");
+      lines.push("4. `lifeos_create_entry` — create confirmed entries (one per activity)");
+      lines.push("");
+
+      lines.push("### Task Prioritization (based on activity gaps)");
+      lines.push("1. `lifeos_trajectory` — which targets are most behind");
+      lines.push("2. `lifeos_tasks` — active/overdue tasks");
+      lines.push("3. `lifeos_projects` — project context for task grouping");
+      lines.push("4. `lifeos_create_entry` — create new tasks for unaddressed gaps (confirm with user)");
+      lines.push("");
+
+      lines.push("### Task Completion (update after finishing work)");
+      lines.push("1. `lifeos_find_entry` (search: task name) — resolve name to page_id");
+      lines.push("2. `lifeos_update_entry` (page_id, {status: Done}) — mark complete");
+      lines.push("3. `lifeos_find_entry` (search: project name) — find linked project");
+      lines.push("4. `lifeos_update_entry` (page_id, {progress: new_value}) — update project progress");
+      lines.push("");
+
+      lines.push("### After Connecting with Someone");
+      lines.push("1. `lifeos_find_entry` (database: people, search: name) — find their page");
+      lines.push("2. `lifeos_update_entry` (page_id, {last_connected_date: today}) — update connection date");
+      lines.push("3. `lifeos_create_entry` (database: relational_journal) — log the interaction");
+      lines.push("");
+
+      lines.push("### Content Pipeline Management");
+      lines.push("1. `lifeos_find_entry` (database: content_pipeline, search: content name) — find the entry");
+      lines.push("2. `lifeos_update_entry` (page_id, {status: Complete, live_url: url}) — mark published");
+      lines.push("3. Later: `lifeos_update_entry` (page_id, {reach: N, engagement: N}) — add metrics");
+      lines.push("");
 
       return {
         content: [

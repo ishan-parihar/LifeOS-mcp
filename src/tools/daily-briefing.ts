@@ -3,7 +3,14 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { extractTitle, extractString, extractDate, extractRelationCount } from "../transformers/shared.js";
+import { transformActivity } from "../transformers/activity.js";
 import { loadActivityTargets } from "../transformers/temporal.js";
+import { resolveDates } from "../transformers/dates.js";
+import {
+  computeWeekdayProfiles, detectAnomalies, suggestDayPlan,
+} from "../transformers/weekday-profiles.js";
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export function registerDailyBriefingTool(
   server: McpServer,
@@ -12,7 +19,7 @@ export function registerDailyBriefingTool(
 ) {
   server.tool(
     "lifeos_daily_briefing",
-    "Generate a comprehensive daily briefing combining today's tasks, recent activities, journal entries, and upcoming deadlines. Designed for morning planning sessions.",
+    "Daily snapshot for a specific date. Returns: active tasks, recent activities (last 3 days), weekday pattern comparison with anomaly detection, suggested daily plan, journal entries, financial activity, and overdue alerts. Use with: lifeos_weekday_patterns (for deeper pattern analysis), lifeos_trajectory (for target gaps), lifeos_create_entry (to log suggested activities — confirm with user).",
     {
       date: z
         .string()
@@ -99,7 +106,116 @@ export function registerDailyBriefingTool(
       }
       lines.push("");
 
-      // 3. Recent journal entries
+      // Compute today's hours per activity type (for use in pattern section)
+      const todayActivities = actResult.results.filter(p => {
+        const d = extractDate(p, "Date");
+        return d && d.startsWith(targetDate);
+      });
+      const todayHours = new Map<string, number>();
+      for (const p of todayActivities) {
+        const actType = extractString(p, "Activity Type");
+        const durProp = p.properties["Duration"];
+        let dur = 0;
+        if (durProp?.type === "formula" && (durProp as any).formula?.type === "number") {
+          dur = (durProp as any).formula.number ?? 0;
+        }
+        todayHours.set(actType, (todayHours.get(actType) || 0) + dur);
+      }
+
+      // 3. Typical day pattern (weekday profile)
+      try {
+        const profileRange = resolveDates("past_month");
+        const profileResult = await notion.queryDataSource(actDb.data_source_id, {
+          page_size: 100,
+          filter: {
+            and: [
+              { property: "Date", date: { on_or_after: `${profileRange.date_from}T00:00:00Z` } },
+              { property: "Date", date: { on_or_before: `${profileRange.date_to}T23:59:59Z` } },
+            ],
+          },
+          sorts: [{ property: "Date", direction: "ascending" }],
+        });
+        const profileActivities = profileResult.results.map(transformActivity);
+        const profiles = computeWeekdayProfiles(profileActivities, 8);
+
+        const targetDow = new Date(targetDate + "T12:00:00Z").getDay();
+        const todayProfile = profiles.get(targetDow);
+
+        if (todayProfile && todayProfile.instances >= 2) {
+          lines.push(`## 📐 Typical ${WEEKDAY_NAMES[targetDow]} Pattern (${todayProfile.instances} instances)`);
+          lines.push("");
+          lines.push(`> Based on last 30 days of data.`);
+          lines.push("");
+
+          // Show category table
+          const sortedCats = [...todayProfile.categories.entries()]
+            .filter(([, s]) => s.mean >= 0.1)
+            .sort((a, b) => b[1].mean - a[1].mean);
+
+          if (sortedCats.length > 0) {
+            lines.push("| Activity | Typical | Today So Far | Status |");
+            lines.push("|----------|---------|-------------|--------|");
+
+            for (const [cat, stats] of sortedCats) {
+              const todayActual = todayHours.get(cat) ?? 0;
+              const sigma = stats.stdDev > 0 ? Math.abs(todayActual - stats.mean) / stats.stdDev : 0;
+              let status: string;
+              if (todayActual === 0 && stats.mean > 0.5) status = "⛔ Not Started";
+              else if (sigma <= 1.5) status = "✅ On Track";
+              else if (sigma <= 2.5) status = "⚠️ Notable";
+              else status = "⛔ Anomaly";
+
+              lines.push(`| ${cat} | ${stats.mean.toFixed(1)}h ± ${stats.stdDev.toFixed(1)}h | ${todayActual.toFixed(1)}h | ${status} |`);
+            }
+            lines.push("");
+          }
+
+          // Anomaly detection
+          const todayActivitiesForAnomaly = actResult.results
+            .filter(p => {
+              const d = extractDate(p, "Date");
+              return d && d.startsWith(targetDate);
+            })
+            .map(transformActivity);
+
+          const anomalies = detectAnomalies(todayActivitiesForAnomaly, todayProfile);
+          const notableAnomalies = anomalies.filter(a => a.severity !== "ok");
+
+          if (notableAnomalies.length > 0) {
+            lines.push("### Anomalies Detected");
+            lines.push("");
+            for (const a of notableAnomalies) {
+              const icon = a.severity === "significant" ? "⛔" : "⚠️";
+              lines.push(`- ${icon} ${a.insight}`);
+            }
+            lines.push("");
+          }
+
+          // Day plan suggestion
+          try {
+            const atDb = getDbConfig(config, "activity_types");
+            const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
+            const targets = loadActivityTargets(atResult.results);
+
+            const suggestions = suggestDayPlan(todayProfile, targets);
+            if (suggestions.length > 0) {
+              lines.push("### 💡 Suggested Plan for Today");
+              lines.push("");
+              for (const s of suggestions) {
+                const tag = s.fromTarget ? "🎯" : "📊";
+                lines.push(`- ${tag} **${s.category}:** ${s.suggestedHours}h — ${s.reasoning}`);
+              }
+              lines.push("");
+            }
+          } catch {
+            // Activity Types not available
+          }
+        }
+      } catch {
+        // Insufficient data for weekday profile
+      }
+
+      // 4. Recent journal entries
       const journals = [
         { key: "subjective_journal", label: "Subjective" },
         { key: "relational_journal", label: "Relational" },
@@ -183,23 +299,6 @@ export function registerDailyBriefingTool(
         const atDb = getDbConfig(config, "activity_types");
         const atResult = await notion.queryDataSource(atDb.data_source_id, { page_size: 20 });
         const targets = loadActivityTargets(atResult.results);
-
-        // Compute today's actual hours per activity type
-        const todayActivities = actResult.results.filter(p => {
-          const d = extractDate(p, "Date");
-          return d && d.startsWith(targetDate);
-        });
-
-        const todayHours = new Map<string, number>();
-        for (const p of todayActivities) {
-          const actType = extractString(p, "Activity Type");
-          const durProp = p.properties["Duration"];
-          let dur = 0;
-          if (durProp?.type === "formula" && (durProp as any).formula?.type === "number") {
-            dur = (durProp as any).formula.number ?? 0;
-          }
-          todayHours.set(actType, (todayHours.get(actType) || 0) + dur);
-        }
 
         if (targets.size > 0) {
           const todayTracked = [...todayHours.values()].reduce((s, v) => s + v, 0);

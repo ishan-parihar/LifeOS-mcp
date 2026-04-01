@@ -7,6 +7,7 @@ import {
   loadActivityTargets, computePeriodMetrics, computeTrend, mapTrajectory,
   type ActivityTarget, type TrendPoint
 } from "../transformers/temporal.js";
+import { resolveDates, PERIOD_PARAM, DATE_FROM_PARAM, DATE_TO_PARAM } from "../transformers/dates.js";
 
 function trajectoryToMarkdown(
   currentMetrics: ReturnType<typeof computePeriodMetrics>,
@@ -131,13 +132,17 @@ export function registerTrajectoryTool(
 ) {
   server.tool(
     "lifeos_trajectory",
-    "Map your activity trajectory against ideal targets from Activity Types. Averages are computed from tracked days only — untracked days are excluded. Targets remain as defined in Activity Types.",
+    "Target compliance analysis. Maps activity averages against ideal targets from Activity Types. Shows per-activity gaps, habit compliance, 30-day projections, and trend direction. Averages use tracked-hours only (untracked days excluded). Use with: lifeos_productivity_report (for allocation context), lifeos_weekday_patterns (for scheduling by weekday), lifeos_tasks (for task prioritization based on gaps).",
     {
-      date_from: z.string().describe("Start date (YYYY-MM-DD)"),
-      date_to: z.string().describe("End date (YYYY-MM-DD)"),
+      period: PERIOD_PARAM,
+      date_from: DATE_FROM_PARAM,
+      date_to: DATE_TO_PARAM,
       baseline_weeks: z.number().default(4).describe("Weeks of history for trend computation"),
     },
-    async ({ date_from, date_to, baseline_weeks }) => {
+    async ({ period, date_from, date_to, baseline_weeks }) => {
+      const resolved = resolveDates(period, date_from, date_to);
+      const date_from_r = resolved.date_from;
+      const date_to_r = resolved.date_to;
       const actDb = getDbConfig(config, "activity_log");
       const atDb = getDbConfig(config, "activity_types");
 
@@ -150,23 +155,23 @@ export function registerTrajectoryTool(
         page_size: 100,
         filter: {
           and: [
-            { property: "Date", date: { on_or_after: date_from } },
-            { property: "Date", date: { on_or_before: `${date_to}T23:59:59Z` } },
+            { property: "Date", date: { on_or_after: date_from_r } },
+            { property: "Date", date: { on_or_before: `${date_to_r}T23:59:59Z` } },
           ],
         },
         sorts: [{ property: "Date", direction: "ascending" }],
       });
       const currentActivities = currentResult.results.map(transformActivity);
-      const currentMetrics = computePeriodMetrics(currentActivities, date_from, date_to, targets);
+      const currentMetrics = computePeriodMetrics(currentActivities, date_from_r, date_to_r, targets);
 
       // Fetch baseline period for trends
-      const baselineStart = new Date(new Date(date_from).getTime() - baseline_weeks * 7 * 24 * 60 * 60 * 1000);
+      const baselineStart = new Date(new Date(date_from_r).getTime() - baseline_weeks * 7 * 24 * 60 * 60 * 1000);
       const baselineResult = await notion.queryDataSource(actDb.data_source_id, {
         page_size: 100,
         filter: {
           and: [
             { property: "Date", date: { on_or_after: baselineStart.toISOString().split("T")[0] } },
-            { property: "Date", date: { on_or_before: `${date_to}T23:59:59Z` } },
+            { property: "Date", date: { on_or_before: `${date_to_r}T23:59:59Z` } },
           ],
         },
         sorts: [{ property: "Date", direction: "ascending" }],
@@ -192,7 +197,9 @@ export function registerTrajectoryTool(
         }
       }
 
-      const markdown = trajectoryToMarkdown(currentMetrics, targets, trends);
+      let markdown = `> Showing: ${resolved.rangeLabel}\n\n`;
+      markdown += trajectoryToMarkdown(currentMetrics, targets, trends);
+      markdown += `\n---\n\n> Next: Use \`lifeos_weekday_patterns\` to plan by weekday, or \`lifeos_create_report\` to save this analysis.`;
 
       return {
         content: [{ type: "text" as const, text: markdown }],

@@ -1,0 +1,1530 @@
+{
+  "activity_log": {
+    "Activity Notes": {
+      "type": "formula"
+    },
+    "Days": {
+      "type": "relation"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Activity_JSON": {
+      "type": "formula"
+    },
+    "Date End": {
+      "type": "formula"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Logged": {
+      "type": "checkbox"
+    },
+    "Habit": {
+      "type": "formula"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Duration": {
+      "type": "formula"
+    },
+    "Activity Type": {
+      "type": "formula"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "tasks": {
+    "Next Sprint 3": {
+      "type": "button"
+    },
+    "Parent task": {
+      "type": "relation"
+    },
+    "Current Sprint": {
+      "type": "button"
+    },
+    "Sub-task": {
+      "type": "relation"
+    },
+    "Sprint Status": {
+      "type": "formula"
+    },
+    "Backlog": {
+      "type": "button"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Last edited time": {
+      "type": "last_edited_time"
+    },
+    "Description": {
+      "type": "rich_text"
+    },
+    "Next Sprint 2": {
+      "type": "button"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Waiting",
+        "Paused",
+        "Delegated",
+        "Up Next",
+        "Active",
+        "Focus",
+        "Done",
+        "Cancelled",
+        "Archived"
+      ]
+    },
+    "Done": {
+      "type": "button"
+    },
+    "Priority": {
+      "type": "select",
+      "options": [
+        "⭐⭐⭐⭐⭐",
+        "⭐⭐⭐⭐",
+        "⭐⭐⭐",
+        "⭐⭐",
+        "⭐",
+        "P1 - Critical",
+        "P2 - High"
+      ]
+    },
+    "Assignee": {
+      "type": "people"
+    },
+    "Monitor": {
+      "type": "formula"
+    },
+    "Action Date": {
+      "type": "date"
+    },
+    "Project Status": {
+      "type": "rollup"
+    },
+    "Next Sprint 4": {
+      "type": "button"
+    },
+    "Weeks": {
+      "type": "relation"
+    },
+    "Next Sprint 1": {
+      "type": "button"
+    },
+    "Tasks": {
+      "type": "title"
+    }
+  },
+  "days": {
+    "Day Name": {
+      "type": "formula"
+    },
+    "Diet Log": {
+      "type": "relation"
+    },
+    "Months": {
+      "type": "relation"
+    },
+    "Day_JSON": {
+      "type": "formula"
+    },
+    "Day Number": {
+      "type": "number"
+    },
+    "Activity Log": {
+      "type": "button"
+    },
+    "Date": {
+      "type": "formula"
+    },
+    "Subjective Journal": {
+      "type": "relation"
+    },
+    "Custom Log": {
+      "type": "button"
+    },
+    "Relational Journal": {
+      "type": "relation"
+    },
+    "Weeks": {
+      "type": "relation"
+    },
+    "Year": {
+      "type": "number"
+    },
+    "Status": {
+      "type": "formula"
+    },
+    "Yesterday Log": {
+      "type": "button"
+    },
+    "Activity Logs": {
+      "type": "relation"
+    },
+    "Systemic Journal": {
+      "type": "relation"
+    },
+    "Days": {
+      "type": "title"
+    }
+  },
+  "weeks": {
+    "Year": {
+      "type": "number"
+    },
+    "Week End": {
+      "type": "formula"
+    },
+    "Tasks Progress": {
+      "type": "formula"
+    },
+    "Status": {
+      "type": "formula"
+    },
+    "Total Income": {
+      "type": "formula"
+    },
+    "Net Cashflow": {
+      "type": "formula"
+    },
+    "Tasks": {
+      "type": "relation"
+    },
+    "Days": {
+      "type": "relation"
+    },
+    "Week Range": {
+      "type": "formula"
+    },
+    "Week Start": {
+      "type": "formula"
+    },
+    "Key Learnings": {
+      "type": "rich_text"
+    },
+    "Week Name": {
+      "type": "formula"
+    },
+    "activityBreakdown": {
+      "type": "formula"
+    },
+    "Financial Log": {
+      "type": "relation"
+    },
+    "Total Expenses": {
+      "type": "formula"
+    },
+    "Week_JSON": {
+      "type": "formula"
+    },
+    "Week Number": {
+      "type": "number"
+    },
+    "Category Summary": {
+      "type": "formula"
+    },
+    "Week": {
+      "type": "title"
+    }
+  },
+  "months": {
+    "Days": {
+      "type": "relation"
+    },
+    "Cashflow Narrative": {
+      "type": "rich_text"
+    },
+    "Quarters": {
+      "type": "relation"
+    },
+    "Month End": {
+      "type": "formula"
+    },
+    "Year": {
+      "type": "number"
+    },
+    "Ending Net Worth": {
+      "type": "number"
+    },
+    "Capital Allocation Insight": {
+      "type": "rich_text"
+    },
+    "Accounts Snapshot": {
+      "type": "rich_text"
+    },
+    "Financial Log": {
+      "type": "relation"
+    },
+    "Accounts Involved": {
+      "type": "formula"
+    },
+    "Month_JSON": {
+      "type": "formula"
+    },
+    "Net Worth Change": {
+      "type": "number"
+    },
+    "Status": {
+      "type": "formula"
+    },
+    "Key Learnings": {
+      "type": "rich_text"
+    },
+    "Total Income": {
+      "type": "formula"
+    },
+    "Category Summary": {
+      "type": "formula"
+    },
+    "Month Start": {
+      "type": "formula"
+    },
+    "Projects": {
+      "type": "formula"
+    },
+    "Total Expenses": {
+      "type": "formula"
+    },
+    "Significant Events": {
+      "type": "rich_text"
+    },
+    "Month Range": {
+      "type": "formula"
+    },
+    "Net Cashflow": {
+      "type": "formula"
+    },
+    "Month Name": {
+      "type": "formula"
+    },
+    "Month Number": {
+      "type": "number"
+    },
+    "Quarterly Goals": {
+      "type": "rollup"
+    },
+    "Month": {
+      "type": "title"
+    }
+  },
+  "quarters": {
+    "Months": {
+      "type": "relation"
+    },
+    "Quarter_Report": {
+      "type": "formula"
+    },
+    "Quarter Start": {
+      "type": "formula"
+    },
+    "Quarter Number": {
+      "type": "number"
+    },
+    "Quarterly Goals": {
+      "type": "relation"
+    },
+    "Quarter End": {
+      "type": "formula"
+    },
+    "Key Learnings": {
+      "type": "rich_text"
+    },
+    "Total Income": {
+      "type": "formula"
+    },
+    "Years": {
+      "type": "relation"
+    },
+    "Net Cashflow": {
+      "type": "formula"
+    },
+    "Category Summary": {
+      "type": "formula"
+    },
+    "Status": {
+      "type": "formula"
+    },
+    "Quarter Name": {
+      "type": "formula"
+    },
+    "Total Expenses": {
+      "type": "formula"
+    },
+    "Quarter Range": {
+      "type": "formula"
+    },
+    "Quarters": {
+      "type": "title"
+    }
+  },
+  "years": {
+    "Quarterly Goals": {
+      "type": "rollup"
+    },
+    "Status": {
+      "type": "formula"
+    },
+    "Annual Goals": {
+      "type": "relation"
+    },
+    "Year Range": {
+      "type": "formula"
+    },
+    "Year_Report": {
+      "type": "formula"
+    },
+    "Quarters": {
+      "type": "relation"
+    },
+    "Years": {
+      "type": "title"
+    }
+  },
+  "projects": {
+    "Documents DB": {
+      "type": "relation"
+    },
+    "Health": {
+      "type": "formula"
+    },
+    "Dependents": {
+      "type": "relation"
+    },
+    "Notes Management": {
+      "type": "relation"
+    },
+    "Monitor": {
+      "type": "formula"
+    },
+    "KPI": {
+      "type": "rich_text"
+    },
+    "Add Tasks": {
+      "type": "button"
+    },
+    "Strategy": {
+      "type": "rich_text"
+    },
+    "Review Date": {
+      "type": "date"
+    },
+    "Project_JSON": {
+      "type": "formula"
+    },
+    "Projected Revenue": {
+      "type": "number"
+    },
+    "People": {
+      "type": "relation"
+    },
+    "Quarterly Goals": {
+      "type": "relation"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Cancelled",
+        "Someday/Maybe",
+        "On Hold",
+        "Delegated",
+        "Active",
+        "Done"
+      ]
+    },
+    "Tasks": {
+      "type": "relation"
+    },
+    "Campaign Calendar": {
+      "type": "relation"
+    },
+    "Depends On": {
+      "type": "relation"
+    },
+    "Systemic Journal": {
+      "type": "relation"
+    },
+    "KPI Status": {
+      "type": "rich_text"
+    },
+    "Last edited time": {
+      "type": "last_edited_time"
+    },
+    "Progress": {
+      "type": "formula"
+    },
+    "Justify This Project": {
+      "type": "rich_text"
+    },
+    "Priority": {
+      "type": "select",
+      "options": [
+        "⭐⭐⭐⭐⭐",
+        "⭐⭐⭐⭐",
+        "⭐⭐⭐",
+        "⭐⭐",
+        "⭐"
+      ]
+    },
+    "Required Budget": {
+      "type": "number"
+    },
+    "Cost to Date": {
+      "type": "formula"
+    },
+    "Project Summary": {
+      "type": "rich_text"
+    },
+    "Project Progress": {
+      "type": "formula"
+    },
+    "Deadline": {
+      "type": "date"
+    },
+    "Opportunities & Strength": {
+      "type": "relation"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Financial Log": {
+      "type": "relation"
+    },
+    "Duration": {
+      "type": "formula"
+    },
+    "Net Cashflow": {
+      "type": "formula"
+    },
+    "Revenue": {
+      "type": "formula"
+    },
+    "Activity Log": {
+      "type": "relation"
+    },
+    "Directives & Risks": {
+      "type": "relation"
+    },
+    "Project Start": {
+      "type": "date"
+    },
+    "Project": {
+      "type": "title"
+    }
+  },
+  "subjective_journal": {
+    "ID": {
+      "type": "unique_id"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Days": {
+      "type": "relation"
+    },
+    "Psychograph": {
+      "type": "rich_text"
+    },
+    "Subjective_JSON": {
+      "type": "formula"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "relational_journal": {
+    "Relationship Status": {
+      "type": "rollup"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "People": {
+      "type": "relation"
+    },
+    "Days": {
+      "type": "relation"
+    },
+    "Relational_JSON": {
+      "type": "formula"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "systemic_journal": {
+    "AI Generated Report": {
+      "type": "rich_text"
+    },
+    "Days": {
+      "type": "relation"
+    },
+    "Impact": {
+      "type": "select",
+      "options": [
+        "P5: Note",
+        "P4: Low",
+        "P3: Medium",
+        "P2: High",
+        "P1: Critical"
+      ]
+    },
+    "Systemic_JSON": {
+      "type": "formula"
+    },
+    "Directives & Risk Log": {
+      "type": "relation"
+    },
+    "Opportunities & Strengths Log": {
+      "type": "relation"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Created Time": {
+      "type": "created_time"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "financial_log": {
+    "Is Financial?": {
+      "type": "formula"
+    },
+    "Amount": {
+      "type": "formula"
+    },
+    "Capital Engine": {
+      "type": "select",
+      "options": [
+        "E (Employment)",
+        "S (Self-employment)",
+        "B (Business)",
+        "I (Investment)",
+        "Personal"
+      ]
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Notes": {
+      "type": "formula"
+    },
+    "Receipt/Document": {
+      "type": "files"
+    },
+    "Category": {
+      "type": "select",
+      "options": [
+        "Business Revenue",
+        "Pocket Money",
+        "Client Payment",
+        "Investment Income",
+        "Income",
+        "Investments/Trading",
+        "House Expenses",
+        "Food & Dining",
+        "Utilities",
+        "Family Times",
+        "Transportation",
+        "Business Expenses",
+        "Rent/Mortgage",
+        "Account Transfer",
+        "Miscellaneous"
+      ]
+    },
+    "Financial Relater": {
+      "type": "formula"
+    },
+    "Weeks": {
+      "type": "relation"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Transaction Type": {
+      "type": "formula"
+    },
+    "Months": {
+      "type": "relation"
+    },
+    "Financial_JSON": {
+      "type": "formula"
+    },
+    "Financial Accounts": {
+      "type": "relation"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "diet_log": {
+    "Days": {
+      "type": "relation"
+    },
+    "Nutrition": {
+      "type": "rich_text"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Diet_JSON": {
+      "type": "formula"
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Name": {
+      "type": "title"
+    }
+  },
+  "quarterly_goals": {
+    "Planned Range": {
+      "type": "formula"
+    },
+    "Key Result 1": {
+      "type": "rich_text"
+    },
+    "Annual Goals": {
+      "type": "relation"
+    },
+    "Goal Progress": {
+      "type": "formula"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Current Quarter Goal": {
+      "type": "formula"
+    },
+    "Quarters": {
+      "type": "relation"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Planning",
+        "On Hold",
+        "At Risk",
+        "Off Track",
+        "On Track",
+        "Done"
+      ]
+    },
+    "Key Learning": {
+      "type": "rich_text"
+    },
+    "Key Result 2": {
+      "type": "rich_text"
+    },
+    "Monitor": {
+      "type": "formula"
+    },
+    "Quarterly_Goal_JSON": {
+      "type": "formula"
+    },
+    "Key Result 3": {
+      "type": "rich_text"
+    },
+    "Health": {
+      "type": "formula"
+    },
+    "Directives & Risk Log": {
+      "type": "relation"
+    },
+    "Progress": {
+      "type": "formula"
+    },
+    "Opportunities & Strengths Log": {
+      "type": "relation"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Quarterly Objective": {
+      "type": "title"
+    }
+  },
+  "annual_goals": {
+    "Primary Metric": {
+      "type": "relation"
+    },
+    "Success Condition": {
+      "type": "rich_text"
+    },
+    "Current Annual Goal": {
+      "type": "formula"
+    },
+    "Monitor": {
+      "type": "formula"
+    },
+    "Key Risks": {
+      "type": "rich_text"
+    },
+    "Strategic Approach": {
+      "type": "rich_text"
+    },
+    "The Epic": {
+      "type": "rich_text"
+    },
+    "Target Value": {
+      "type": "rich_text"
+    },
+    "Goal Progress": {
+      "type": "formula"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Draft",
+        "Active",
+        "Achieved",
+        "Not Achieved",
+        "Archived"
+      ]
+    },
+    "Strategic Intent": {
+      "type": "rich_text"
+    },
+    "Vision": {
+      "type": "relation"
+    },
+    "Goal Archetype": {
+      "type": "select",
+      "options": [
+        "Build (Create something new)",
+        "Achieve (Reach a specific milestone)",
+        "Become (Embody a new identity/skillset)",
+        "Eliminate (Remove a major constraint)"
+      ]
+    },
+    "Years": {
+      "type": "relation"
+    },
+    "Annual_Goal_Report": {
+      "type": "formula"
+    },
+    "Planned Range": {
+      "type": "formula"
+    },
+    "Quarterly Goals": {
+      "type": "relation"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Annual Theme": {
+      "type": "title"
+    }
+  },
+  "directives_risk_log": {
+    "DRL_JSON": {
+      "type": "formula"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Log Type": {
+      "type": "select",
+      "options": [
+        "🛡️ Directive",
+        "🔥 Risk"
+      ]
+    },
+    "Last Assessed": {
+      "type": "date"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Identified",
+        "Active",
+        "Mitigated",
+        "Archived"
+      ]
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Threat Level": {
+      "type": "formula"
+    },
+    "Systemic Journal": {
+      "type": "relation"
+    },
+    "Protocol / Scenario": {
+      "type": "rich_text"
+    },
+    "Quarterly Goals": {
+      "type": "relation"
+    },
+    "Mitigates / Mitigated By": {
+      "type": "relation"
+    },
+    "Directive / Risk": {
+      "type": "title"
+    },
+    "Likelihood": {
+      "type": "select",
+      "options": [
+        "🔴 High",
+        "🟡 Medium",
+        "🟢 Low"
+      ]
+    },
+    "Impact": {
+      "type": "select",
+      "options": [
+        "🔴 High",
+        "🟡 Medium",
+        "🟢 Low"
+      ]
+    }
+  },
+  "opportunities_strengths": {
+    "Last Assessed": {
+      "type": "date"
+    },
+    "Synergizes With": {
+      "type": "relation"
+    },
+    "Log Type": {
+      "type": "select",
+      "options": [
+        "💡 Opportunity",
+        "💪 Strength"
+      ]
+    },
+    "Quarterly Goals": {
+      "type": "relation"
+    },
+    "Leverage Score": {
+      "type": "select",
+      "options": [
+        "🌱 Seed",
+        "📈 Medium-Impact",
+        "🚀 High-Leverage"
+      ]
+    },
+    "Description & Activation": {
+      "type": "rich_text"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Systemic Journal": {
+      "type": "relation"
+    },
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "💡 Identified",
+        "✅ Activated",
+        "🏆 Capitalized",
+        "🧊 Archived"
+      ]
+    },
+    "Opportunity / Strength": {
+      "type": "title"
+    }
+  },
+  "people": {
+    "Networking Profile": {
+      "type": "select",
+      "options": [
+        "Key Ally",
+        "Active Collaborator",
+        "Mentor / Advisor",
+        "Protégé / Mentee",
+        "Peer / Sounding Board",
+        "Inactive",
+        "Archive"
+      ]
+    },
+    "Value Exchange Balance": {
+      "type": "select",
+      "options": [
+        "I am in Credit",
+        "Balanced",
+        "I am in Debt"
+      ]
+    },
+    "First Name": {
+      "type": "formula"
+    },
+    "Engagement Blueprint": {
+      "type": "rich_text"
+    },
+    "Relationship Status": {
+      "type": "select",
+      "options": [
+        "Family Member",
+        "Mentor",
+        "Close Friend",
+        "Close Acquiantance",
+        "Coworker",
+        "Acquiantance"
+      ]
+    },
+    "Professional Domain & Influence": {
+      "type": "rich_text"
+    },
+    "Core Shadow": {
+      "type": "select",
+      "options": [
+        "Fear of Insignificance",
+        "Fear of Rejection",
+        "Fear of Chaos/Uncertainty",
+        "Fear of Powerlessness/Domination"
+      ]
+    },
+    "Origin Context": {
+      "type": "rich_text"
+    },
+    "Last Connected Date": {
+      "type": "formula"
+    },
+    "Key Personal Intel": {
+      "type": "rich_text"
+    },
+    "Developmental Altitude": {
+      "type": "select",
+      "options": [
+        "LVL 3: Red (Egocentric Power)",
+        "LVL 4: Amber (Mythic Order / Conformist)",
+        "LVL 5: Orange (Rational Achievement)",
+        "LVL 6: Green (Pluralistic / Relativistic)",
+        "LVL 7: Turquoise (Integral / Systemic)"
+      ]
+    },
+    "Aspirational Drive": {
+      "type": "select",
+      "options": [
+        "Security & Stability",
+        "Connection & Belonging",
+        "Status & Recognition",
+        "Mastery & Impact",
+        "Growth & Understanding"
+      ]
+    },
+    "Community": {
+      "type": "relation"
+    },
+    "Influence Toolkit": {
+      "type": "multi_select",
+      "options": [
+        "Strategic Persuasion",
+        "Inspirational & Charismatic",
+        "Collaborative",
+        "Coercive Influence",
+        "Elicits Pity/Guilt",
+        "Creates Desire (The Covetous Object)"
+      ]
+    },
+    "Reconnect By": {
+      "type": "formula"
+    },
+    "Temporal Focus": {
+      "type": "select",
+      "options": [
+        "Operational (Now/Days)",
+        "Tactical (Weeks/Months)",
+        "Strategic (Quarters/Years)",
+        "Legacy (Decades+)"
+      ]
+    },
+    "Primary Center of Intelligence": {
+      "type": "select",
+      "options": [
+        "Cognitive (Logic Data Frameworks)",
+        "Affective (Feelings Relational Dynamics Empathy)",
+        "Somatic (Instinct Embodied Sensation Kinaesthetics)"
+      ]
+    },
+    "Stories": {
+      "type": "relation"
+    },
+    "In days Connection Frequency": {
+      "type": "number"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Dominant Power Strategy": {
+      "type": "select",
+      "options": [
+        "Directing (Power Over)",
+        "Collaborating (Power With)",
+        "Inspiring (Power Through)",
+        "Mastering (Power From Within)",
+        "Gatekeeping (Power by Controlling Access)"
+      ]
+    },
+    "City": {
+      "type": "select",
+      "options": [
+        "Noida",
+        "Janakpuri",
+        "Delhi",
+        "Greater Noida",
+        "Gurgaon",
+        "Ghaziabad",
+        "Faridabad",
+        "Meerut",
+        "Aligarh",
+        "Varanasi",
+        "Mumbai",
+        "Bihar",
+        "Dubai",
+        "Edison NJ",
+        "Chicago IL",
+        "Netherlands",
+        "US",
+        "Canada",
+        "Britain",
+        "Pune"
+      ]
+    },
+    "Primary Conflict Style": {
+      "type": "select",
+      "options": [
+        "Competing",
+        "Accommodating",
+        "Avoiding",
+        "Collaborating",
+        "Compromising"
+      ]
+    },
+    "Custom Name": {
+      "type": "rich_text"
+    },
+    "Desired Trajectory": {
+      "type": "select",
+      "options": [
+        "Deepen",
+        "Maintain",
+        "Activate",
+        "Graceful Exit",
+        "Inactive"
+      ]
+    },
+    "Summary": {
+      "type": "rich_text"
+    },
+    "Strategic Context": {
+      "type": "rich_text"
+    },
+    "Stability Profile": {
+      "type": "select",
+      "options": [
+        "The Anchor (Principled -> Rigid)",
+        "The Weaver (Adaptable -> Evasive)",
+        "The Rock (Dependable -> Withdrawn)",
+        "The Warrior (Assertive -> Aggressive)"
+      ]
+    },
+    "Explanatory Style": {
+      "type": "select",
+      "options": [
+        "The Pragmatist (External Temporary Specific)",
+        "The Hero (Internal Temporary Specific)",
+        "The Martyr (External Permanent Pervasive)",
+        "The Victim (Internal Permanent Pervasive)"
+      ]
+    },
+    "People": {
+      "type": "title"
+    }
+  },
+  "campaigns": {
+    "Theme": {
+      "type": "rich_text"
+    },
+    "End Date": {
+      "type": "date"
+    },
+    "Summary": {
+      "type": "rich_text"
+    },
+    "Demographics": {
+      "type": "rich_text"
+    },
+    "Content Types": {
+      "type": "multi_select",
+      "options": [
+        "Carousels",
+        "Essays",
+        "Threads",
+        "Case Studies",
+        "Videos",
+        "Reels"
+      ]
+    },
+    "Target Reach": {
+      "type": "number"
+    },
+    "SEO Keywords": {
+      "type": "rich_text"
+    },
+    "Automation Workflows": {
+      "type": "multi_select",
+      "options": [
+        "Morning Brief",
+        "Evening Synthesis",
+        "Weekly Report",
+        "Journal AI Analysis",
+        "LinkedIn Post Scheduler",
+        "Lead Nurture Sequence",
+        "CRM Integration",
+        "Substack Newsletter",
+        "YouTube Upload Notify",
+        "Twitter Thread Scheduler",
+        "Session Booking Notify",
+        "Follow-up Sequence",
+        "Client Onboarding",
+        "RSS News Aggregation",
+        "Story Brief Generator",
+        "Trade Journal Auto-Log",
+        "Performance Report Generator",
+        "Backtest Results Notify",
+        "Cross-Platform Scheduler",
+        "Analytics Aggregator",
+        "Content Calendar Sync"
+      ]
+    },
+    "Platforms": {
+      "type": "multi_select",
+      "options": [
+        "LinkedIn",
+        "Instagram",
+        "Twitter/X",
+        "Substack",
+        "YouTube",
+        "TikTok"
+      ]
+    },
+    "Content Frequency": {
+      "type": "select",
+      "options": [
+        "Daily",
+        "3x/week",
+        "Weekly"
+      ]
+    },
+    "Content Pipeline": {
+      "type": "relation"
+    },
+    "Start Date": {
+      "type": "date"
+    },
+    "Content Waterfall": {
+      "type": "rich_text"
+    },
+    "Engagement Rate": {
+      "type": "number"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Projects": {
+      "type": "relation"
+    },
+    "Duration": {
+      "type": "formula"
+    },
+    "Actual Reach": {
+      "type": "number"
+    },
+    "Psychographics": {
+      "type": "rich_text"
+    },
+    "Viral Score": {
+      "type": "number"
+    },
+    "Conversion Rate": {
+      "type": "number"
+    },
+    "Campaign": {
+      "type": "title"
+    }
+  },
+  "content_pipeline": {
+    "Status": {
+      "type": "status",
+      "groups": [
+        {
+          "name": "To-do",
+          "options": []
+        },
+        {
+          "name": "In progress",
+          "options": []
+        },
+        {
+          "name": "Complete",
+          "options": []
+        }
+      ],
+      "allOptions": [
+        "Potential Idea",
+        "Scheduled",
+        "Next Up 🚩",
+        "Writing 📝",
+        "Recording ⏺",
+        "Editing 🎞",
+        "Ready to Post 📤",
+        "Published 💥"
+      ]
+    },
+    "Platforms": {
+      "type": "multi_select",
+      "options": [
+        "YouTube",
+        "Facebook",
+        "Instagram",
+        "X (Twitter)",
+        "Threads",
+        "LinkedIn",
+        "Blog",
+        "Medium",
+        "Substack"
+      ]
+    },
+    "Tone": {
+      "type": "select",
+      "options": [
+        "Intellectual",
+        "Authentic/Vulnerable",
+        "Practical/How-to",
+        "Analytic",
+        "Urgent"
+      ]
+    },
+    "Parent Content": {
+      "type": "relation"
+    },
+    "Funnel Stage": {
+      "type": "select",
+      "options": [
+        "TOFU (Awareness)",
+        "MOFU (Nurture)",
+        "BOFU (Conversion)"
+      ]
+    },
+    "Reach": {
+      "type": "number"
+    },
+    "Action Date": {
+      "type": "date"
+    },
+    "Format": {
+      "type": "multi_select",
+      "options": [
+        "45-90 Sec Reel",
+        "5-10 Min Video",
+        "30-60 Min Podcast",
+        "Blog",
+        "Newsletter",
+        "FB/Linkedin/X Post"
+      ]
+    },
+    "Clicks": {
+      "type": "number"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Engagement Rate": {
+      "type": "formula"
+    },
+    "Child Content": {
+      "type": "relation"
+    },
+    "Media Assets": {
+      "type": "files"
+    },
+    "Publish Date": {
+      "type": "date"
+    },
+    "Pillar": {
+      "type": "select",
+      "options": [
+        "P1: Meta-Theory",
+        "P2: AI Consulting",
+        "P3: LifeOS",
+        "P5: Counselling",
+        "P5: Activism"
+      ]
+    },
+    "Live URL": {
+      "type": "url"
+    },
+    "Content Body": {
+      "type": "rich_text"
+    },
+    "Projects": {
+      "type": "rollup"
+    },
+    "Engagement": {
+      "type": "number"
+    },
+    "Campaigns": {
+      "type": "relation"
+    },
+    "Content Name": {
+      "type": "title"
+    }
+  },
+  "activity_types": {
+    "Frequency": {
+      "type": "select",
+      "options": [
+        "Once every Week",
+        "4 Times a Day",
+        "Twice Every Week",
+        "Every Day",
+        "Once every 4 days"
+      ]
+    },
+    "Duration (in hrs)": {
+      "type": "number"
+    },
+    "Habit": {
+      "type": "checkbox"
+    },
+    "Activity Types": {
+      "type": "title"
+    }
+  },
+  "reports": {
+    "Agent": {
+      "type": "select",
+      "options": [
+        "Psychologist",
+        "Productivity",
+        "Relational",
+        "Strategic",
+        "Nutritionist",
+        "Financial"
+      ]
+    },
+    "Created time": {
+      "type": "created_time"
+    },
+    "Report": {
+      "type": "rich_text"
+    },
+    "ID": {
+      "type": "unique_id"
+    },
+    "Title": {
+      "type": "title"
+    }
+  }
+}

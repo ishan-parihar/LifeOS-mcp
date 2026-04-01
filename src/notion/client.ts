@@ -88,6 +88,24 @@ export class NotionClient {
     return result;
   }
 
+  async updatePage(pageId: string, properties: Record<string, unknown>): Promise<NotionPage> {
+    const result = await this.fetch<NotionPage>(`/v1/pages/${pageId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ properties }),
+    });
+    this.invalidateCache();
+    return result;
+  }
+
+  async archivePage(pageId: string): Promise<NotionPage> {
+    const result = await this.fetch<NotionPage>(`/v1/pages/${pageId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ archived: true }),
+    });
+    this.invalidateCache();
+    return result;
+  }
+
   invalidateCache(): void {
     this.cache.clear();
   }

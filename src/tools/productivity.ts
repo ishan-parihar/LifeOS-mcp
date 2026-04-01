@@ -9,6 +9,7 @@ import {
   productivityReportToMarkdown,
 } from "../transformers/productivity.js";
 import { loadActivityTargets, computePeriodMetrics } from "../transformers/temporal.js";
+import { resolveDates, PERIOD_PARAM, DATE_FROM_PARAM, DATE_TO_PARAM } from "../transformers/dates.js";
 
 export function registerProductivityTool(
   server: McpServer,
@@ -17,25 +18,16 @@ export function registerProductivityTool(
 ) {
   server.tool(
     "lifeos_productivity_report",
-    "Generate a synthesized productivity report correlating activity log data with task completion. Shows time allocation, task performance, and automated insights. Compares actual per-tracked-day averages vs Activity Types targets.",
+    "Weekly/monthly productivity analysis. Returns time allocation by category, task completion metrics, and comparison against Activity Types targets (daily averages computed from tracked hours only). Date range: past_week covers 8 calendar days, past_month covers 31. Use with: lifeos_temporal_analysis (baseline trends), lifeos_trajectory (target gaps), lifeos_create_report (save insights).",
     {
-      date_from: z
-        .string()
-        .optional()
-        .describe("Start date (YYYY-MM-DD). Default: 7 days ago"),
-      date_to: z
-        .string()
-        .optional()
-        .describe("End date (YYYY-MM-DD). Default: today"),
+      period: PERIOD_PARAM,
+      date_from: DATE_FROM_PARAM,
+      date_to: DATE_TO_PARAM,
     },
-    async ({ date_from, date_to }) => {
-      const today = new Date();
-      const to = date_to || today.toISOString().split("T")[0];
-      const from =
-        date_from ||
-        new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0];
+    async ({ period, date_from, date_to }) => {
+      const resolved = resolveDates(period, date_from, date_to);
+      const to = resolved.date_to;
+      const from = resolved.date_from;
 
       const actDb = getDbConfig(config, "activity_log");
       const actResult = await notion.queryDataSource(actDb.data_source_id, {
@@ -56,7 +48,8 @@ export function registerProductivityTool(
       const tasks = taskResult.results.map(transformTask);
 
       const report = computeProductivityReport(activities, tasks, from, to);
-      let markdown = productivityReportToMarkdown(report);
+      let markdown = `> Showing: ${resolved.rangeLabel}\n\n`;
+      markdown += productivityReportToMarkdown(report);
 
       // Fetch Activity Types for target comparison
       try {
@@ -94,6 +87,8 @@ export function registerProductivityTool(
       } catch {
         // Activity Types DB not available
       }
+
+      markdown += `\n---\n\n> Next: Use \`lifeos_trajectory\` for target gap analysis, or \`lifeos_create_report\` to save this analysis.`;
 
       return {
         content: [{ type: "text" as const, text: markdown }],

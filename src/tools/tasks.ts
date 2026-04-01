@@ -11,7 +11,7 @@ export function registerTasksTool(
 ) {
   server.tool(
     "lifeos_tasks",
-    "Retrieve tasks with status, priority, and overdue detection. Supports filtering by status, project, and overdue tasks.",
+    "Retrieve tasks with status, priority, overdue detection, and sprint filtering. Use with: lifeos_daily_briefing (for today's task context), lifeos_projects (for project-level grouping), lifeos_trajectory (to prioritize tasks based on activity target gaps).",
     {
       status: z
         .string()
