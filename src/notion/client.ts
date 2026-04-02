@@ -88,6 +88,11 @@ export class NotionClient {
     return result;
   }
 
+  async getPage(pageId: string): Promise<NotionPage> {
+    const result = await this.fetch<NotionPage>(`/v1/pages/${pageId}`);
+    return result;
+  }
+
   async updatePage(pageId: string, properties: Record<string, unknown>): Promise<NotionPage> {
     const result = await this.fetch<NotionPage>(`/v1/pages/${pageId}`, {
       method: "PATCH",

@@ -19,6 +19,16 @@ import { registerWeekdayPatternsTool } from "./tools/weekday-patterns.js";
 import { registerFindEntryTool } from "./tools/find-entry.js";
 import { registerUpdateEntryTool } from "./tools/update-entry.js";
 import { registerArchiveEntryTool } from "./tools/archive-entry.js";
+import { registerContextCardTool } from "./tools/context-card.js";
+import { registerContentTool } from "./tools/content.js";
+import { registerCampaignsTool } from "./tools/campaigns.js";
+import { registerPlanningOpsTool } from "./tools/planning-ops.js";
+import { registerPeopleOpsTool } from "./tools/people-ops.js";
+import { registerFinanceOpsTool } from "./tools/finance-ops.js";
+import { registerAlignmentTool } from "./tools/alignment.js";
+import { registerProjectHealthTool } from "./tools/project-health.js";
+import { registerOkrsProgressTool } from "./tools/okrs-progress.js";
+import { registerJournalSynthesisTool } from "./tools/journal-synthesis.js";
 
 const config = loadConfig();
 const token = process.env.NOTION_API_TOKEN;
@@ -31,7 +41,7 @@ const notion = new NotionClient(config, token);
 
 const server = new McpServer({
   name: "lifeos-mcp",
-  version: "0.4.0",
+  version: "0.5.0",
 });
 
 // Layer 1: Data Access
@@ -41,6 +51,16 @@ registerActivityLogTool(server, config, notion);
 registerTasksTool(server, config, notion);
 registerJournalingTools(server, config, notion);
 registerStrategicTools(server, config, notion);
+registerContextCardTool(server, config, notion);
+registerContentTool(server, config, notion);
+registerCampaignsTool(server, config, notion);
+registerPlanningOpsTool(server, config, notion);
+registerPeopleOpsTool(server, config, notion);
+registerFinanceOpsTool(server, config, notion);
+registerAlignmentTool(server, config, notion);
+registerProjectHealthTool(server, config, notion);
+registerOkrsProgressTool(server, config, notion);
+registerJournalSynthesisTool(server, config, notion);
 
 // Layer 2: Synthesis
 registerProductivityTool(server, config, notion);
@@ -63,7 +83,7 @@ registerArchiveEntryTool(server, config, notion);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("LifeOS MCP server v0.4.0 running on stdio");
+  console.error("LifeOS MCP server v0.5.0 running on stdio");
 }
 
 main().catch(console.error);

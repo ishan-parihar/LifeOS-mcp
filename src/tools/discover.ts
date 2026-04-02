@@ -108,6 +108,7 @@ export function registerDiscoverTool(
       lines.push("");
       lines.push("### Layer 1: Data Access");
       lines.push("- `lifeos_discover` — Show this architecture map");
+      lines.push("- `lifeos_context_card` — Agent-scoped startup context (compact/schemas/workflows)");
       lines.push("- `lifeos_query` — Query any database (auto-detects property types)");
       lines.push("- `lifeos_activity_log` — Activities by date range and category");
       lines.push("- `lifeos_tasks` — Tasks with priority and overdue detection");
@@ -119,6 +120,17 @@ export function registerDiscoverTool(
       lines.push("### Layer 2: Synthesis");
       lines.push("- `lifeos_productivity_report` — Activity × Task correlation with baseline");
       lines.push("- `lifeos_daily_briefing` — Multi-database daily snapshot");
+      lines.push("- `lifeos_campaigns` — List campaigns, get briefs");
+      lines.push("- `lifeos_content` — Pipeline ops: list, transition, publish, metrics, calendar");
+      lines.push("- `lifeos_project_health` — Project health composite indicators");
+      lines.push("- `lifeos_okrs_progress` — OKR progress rollups and coverage");
+      lines.push("- `lifeos_journal_synthesis` — Cross-journal theme clustering");
+      lines.push("");
+      lines.push("### Layer 2.5: Ops (Macro Tools)");
+      lines.push("- `lifeos_planning_ops` — Morning planner, weekly review, habit compliance");
+      lines.push("- `lifeos_people_ops` — Cadence review, follow-ups, log interaction");
+      lines.push("- `lifeos_finance_ops` — Month close, anomalies, cashflow summary, receivables/payables");
+      lines.push("- `lifeos_alignment` — OKR↔Project↔Campaign coverage and stakeholders");
       lines.push("");
       lines.push("### Layer 3: Temporal Analysis");
       lines.push("- `lifeos_temporal_analysis` — Baselines, deviations, trends across any time period");

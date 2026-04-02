@@ -111,6 +111,9 @@ const PROPERTY_NAME_MAP: Record<string, string> = {
 
   // URL
   live_url: "Live URL",
+  
+  // Files
+  media_assets: "Media Assets",
 };
 
 // Fields that are formulas (read-only, skip in create/update)
@@ -121,7 +124,7 @@ const FORMULA_FIELDS = new Set([
   "month_start", "month_end", "quarter_start", "quarter_end",
   "sprint_status", "tasks_progress", "project_progress", "goal_progress",
   "reconnect_by", "actual_reach", "engagement_rate", "conversion_rate", "viral_score",
-  "engagement", "clicks", "reach", "duration",
+  "duration",
   "total_income", "total_expenses", "net_cashflow", "net_worth_change",
   "ending_net_worth", "category_summary", "accounts_snapshot",
   "capital_allocation_insight", "cashflow_narrative",
@@ -156,10 +159,14 @@ const DATE_KEYS = new Set([
 // Fields that should be formatted as number
 const NUMBER_KEYS = new Set([
   "amount", "target_reach", "connection_frequency", "progress",
+  "reach", "clicks", "engagement",
 ]);
 
 // Fields that should be formatted as URL
 const URL_KEYS = new Set(["live_url"]);
+
+// Fields that should be formatted as files (external URLs)
+const FILE_KEYS = new Set(["media_assets"]);
 
 const RELATION_KEYS: Record<string, string> = {
   projects: "Projects",
@@ -202,7 +209,7 @@ export const DB_DESCRIPTIONS: Record<DbKey, string> = {
 
   campaigns: `Campaign Management — theme (text), summary (text), start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), platforms (LinkedIn|Instagram|Twitter/X|Substack|YouTube|TikTok), content_types (Carousels|Essays|Threads|Case Studies|Videos|Reels), content_frequency (Daily|3x/week|Weekly), target_reach (number), demographics (text), psychographics (text), seo_keywords (text), content_waterfall (text), projects (relation)`,
 
-  content_pipeline: `Content Pipeline — status (Potential Idea|Scheduled|Next Up 🚩|Writing 📝|Recording ⏺|Editing 🎞|Ready to Post 📤|Published 💥), platforms (YouTube|Facebook|Instagram|X (Twitter)|Threads|LinkedIn|Blog|Medium|Substack), format (45-90 Sec Reel|5-10 Min Video|30-60 Min Podcast|Blog|Newsletter|FB/Linkedin/X Post), tone (Intellectual|Authentic/Vulnerable|Practical/How-to|Analytic|Urgent), pillar (P1: Meta-Theory|P2: AI Consulting|P3: LifeOS|P5: Counselling|P5: Activism), funnel_stage (TOFU (Awareness)|MOFU (Nurture)|BOFU (Conversion)), content_body (text), publish_date (YYYY-MM-DD), action_date (YYYY-MM-DD), live_url (URL), campaigns (relation), parent_content (relation)`,
+  content_pipeline: `Content Pipeline — status (Potential Idea|Scheduled|Next Up 🚩|Writing 📝|Recording ⏺|Editing 🎞|Ready to Post 📤|Published 💥), platforms (YouTube|Facebook|Instagram|X (Twitter)|Threads|LinkedIn|Blog|Medium|Substack), format (45-90 Sec Reel|5-10 Min Video|30-60 Min Podcast|Blog|Newsletter|FB/Linkedin/X Post), tone (Intellectual|Authentic/Vulnerable|Practical/How-to|Analytic|Urgent), pillar (P1: Meta-Theory|P2: AI Consulting|P3: LifeOS|P5: Counselling|P5: Activism), funnel_stage (TOFU (Awareness)|MOFU (Nurture)|BOFU (Conversion)), content_body (text), publish_date (YYYY-MM-DD), action_date (YYYY-MM-DD), live_url (URL), media_assets ([external URLs]), campaigns (relation), parent_content (relation)`,
 
   people: `People — custom_name (text), city (Noida|Janakpuri|Delhi|Greater Noida|Gurgaon|Ghaziabad|Faridabad|Meerut|Aligarh|Varanasi|Mumbai|Bihar|Dubai|Edison NJ|Chicago IL|Netherlands|US|Canada|Britain|Pune), relationship_status (Family Member|Mentor|Close Friend|Close Acquiantance|Coworker|Acquiantance), networking_profile (Key Ally|Active Collaborator|Mentor / Advisor|Protégé / Mentee|Peer / Sounding Board|Inactive|Archive), value_exchange_balance (I am in Credit|Balanced|I am in Debt), desired_trajectory (Deepen|Maintain|Activate|Graceful Exit|Inactive), last_connected_date (YYYY-MM-DD), connection_frequency (number: days), summary (text), strategic_context (text), developmental_altitude (LVL 3-7), primary_center_of_intelligence (Cognitive|Affective|Somatic), aspirational_drive (Security & Stability|Connection & Belonging|Status & Recognition|Mastery & Impact|Growth & Understanding), core_shadow (Fear of Insignificance|Fear of Rejection|Fear of Chaos/Uncertainty|Fear of Powerlessness/Domination), primary_conflict_style (Competing|Accommodating|Avoiding|Collaborating|Compromising), temporal_focus (Operational|Tactical|Strategic|Legacy), dominant_power_strategy (Directing|Collaborating|Inspiring|Mastering|Gatekeeping), influence_toolkit (multi_select), projects (relation)`,
 };
@@ -294,6 +301,17 @@ function processProperties(
     // URL properties
     if (URL_KEYS.has(key)) {
       notionProps[notionName] = { url: value as string };
+      continue;
+    }
+
+    // Files (external URLs)
+    if (FILE_KEYS.has(key)) {
+      const arr = Array.isArray(value) ? (value as unknown[]) : [value];
+      const files = arr
+        .map((v) => String(v))
+        .filter((u) => u.length > 0)
+        .map((u) => ({ name: u.split("/").pop() || "asset", external: { url: u } }));
+      notionProps[notionName] = { files } as unknown as Record<string, unknown>;
       continue;
     }
 
