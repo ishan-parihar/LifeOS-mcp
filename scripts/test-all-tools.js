@@ -6,7 +6,7 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 
-const TOKEN = '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';
+const TOKEN = 'REPLACE_WITH_YOUR_KEY';
 const proc = spawn('node', ['/home/ishanp/Documents/GitHub/LifeOS/dist/index.js'], {
   env: { ...process.env, NOTION_API_TOKEN: TOKEN },
   stdio: ['pipe', 'pipe', 'pipe']
