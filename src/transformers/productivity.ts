@@ -64,11 +64,11 @@ export function computeProductivityReport(
   const recEntry = categoryBreakdown.get("Recreation");
   if (recEntry && totalHours > 0) {
     const recPct = (recEntry.hours / totalHours) * 100;
-    if (recPct > 40) flags.push(`⚠️ Recreation is ${recPct.toFixed(0)}% of tracked time (>40% threshold)`);
+    flags.push(`Recreation is ${recPct.toFixed(0)}% of tracked time`);
   }
-  if (tasksOverdue > 0) flags.push(`⚠️ ${tasksOverdue} overdue task(s) need attention`);
-  if (totalHours < days * 2) flags.push(`⚠️ Low activity tracking: only ${totalHours.toFixed(1)}h over ${days} days`);
-  if (habitCount === 0) flags.push("ℹ️ No habit activities logged in this period");
+  if (tasksOverdue > 0) flags.push(`${tasksOverdue} overdue task(s)`);
+  if (totalHours < days * 2) flags.push(`Low activity tracking: ${totalHours.toFixed(1)}h over ${days} days`);
+  if (habitCount === 0) flags.push("No habit activities logged in this period");
 
   return {
     period: `${dateFrom} to ${dateTo}`,
@@ -108,9 +108,7 @@ export function productivityReportToMarkdown(report: ProductivityReport): string
     (a, b) => b[1].hours - a[1].hours
   )) {
     const pct = report.totalHours > 0 ? ((data.hours / report.totalHours) * 100).toFixed(0) : "0";
-    const bar = "█".repeat(Math.round(data.hours)) + "░".repeat(Math.max(0, 10 - Math.round(data.hours)));
-    const flag = cat === "Recreation" && Number(pct) > 40 ? " ⚠️ HIGH" : "";
-    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h (${pct}%) ${bar}${flag} — ${data.count} entries`);
+    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h (${pct}%) — ${data.count} entries`);
   }
 
   lines.push("");

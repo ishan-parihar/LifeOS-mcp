@@ -5,7 +5,6 @@ import { loadConfig } from "./config.js";
 import { NotionClient } from "./notion/client.js";
 import { registerDiscoverTool } from "./tools/discover.js";
 import { registerQueryTool } from "./tools/query.js";
-import { registerActivityLogTool } from "./tools/activity-log.js";
 import { registerTasksTool } from "./tools/tasks.js";
 import { registerProductivityTool } from "./tools/productivity.js";
 import { registerDailyBriefingTool } from "./tools/daily-briefing.js";
@@ -18,7 +17,7 @@ import { registerTrajectoryTool } from "./tools/trajectory.js";
 import { registerWeekdayPatternsTool } from "./tools/weekday-patterns.js";
 import { registerFindEntryTool } from "./tools/find-entry.js";
 import { registerUpdateEntryTool } from "./tools/update-entry.js";
-import { registerArchiveEntryTool } from "./tools/archive-entry.js";
+import { registerDeleteEntryTool } from "./tools/delete-entry.js";
 import { registerContextCardTool } from "./tools/context-card.js";
 import { registerContentTool } from "./tools/content.js";
 import { registerCampaignsTool } from "./tools/campaigns.js";
@@ -29,6 +28,12 @@ import { registerAlignmentTool } from "./tools/alignment.js";
 import { registerProjectHealthTool } from "./tools/project-health.js";
 import { registerOkrsProgressTool } from "./tools/okrs-progress.js";
 import { registerJournalSynthesisTool } from "./tools/journal-synthesis.js";
+import { registerHealthVitalityTool } from "./tools/health-vitality.js";
+import { registerFinancialProductivityTool } from "./tools/financial-productivity.js";
+import { registerWeeklyReviewTool } from "./tools/weekly-review.js";
+import { registerCorrelateTool } from "./tools/correlate.js";
+import { registerMonthlySynthesisTool } from "./tools/monthly-synthesis.js";
+import { registerQuarterlyRetrospectiveTool } from "./tools/quarterly-retrospective.js";
 
 const config = loadConfig();
 const token = process.env.NOTION_API_TOKEN;
@@ -47,7 +52,6 @@ const server = new McpServer({
 // Layer 1: Data Access
 registerDiscoverTool(server, config, notion);
 registerQueryTool(server, config, notion);
-registerActivityLogTool(server, config, notion);
 registerTasksTool(server, config, notion);
 registerJournalingTools(server, config, notion);
 registerStrategicTools(server, config, notion);
@@ -71,14 +75,24 @@ registerTemporalAnalysisTool(server, config, notion);
 registerTrajectoryTool(server, config, notion);
 registerWeekdayPatternsTool(server, config, notion);
 
+// Layer 3b: Domain-Specific Analysis
+registerHealthVitalityTool(server, config, notion);
+registerFinancialProductivityTool(server, config, notion);
+registerWeeklyReviewTool(server, config, notion);
+registerCorrelateTool(server, config, notion);
+
+// Layer 4: Temporal Hierarchy (Monthly/Quarterly)
+registerMonthlySynthesisTool(server, config, notion);
+registerQuarterlyRetrospectiveTool(server, config, notion);
+
 // Layer 4: Write Tools
 registerCreateEntryTool(server, config, notion);
 registerCreateReportTool(server, config, notion);
 
-// Layer 5: Update & Archive Tools
+// Layer 5: Update & Delete Tools
 registerFindEntryTool(server, config, notion);
 registerUpdateEntryTool(server, config, notion);
-registerArchiveEntryTool(server, config, notion);
+registerDeleteEntryTool(server, config, notion);
 
 async function main() {
   const transport = new StdioServerTransport();

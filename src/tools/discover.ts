@@ -26,6 +26,7 @@ const LAYER_MAP: Record<string, string> = {
   content_pipeline: "strategic",
   activity_types: "reference",
   reports: "reference",
+  notes_management: "reference",
 };
 
 export function registerDiscoverTool(
@@ -110,10 +111,7 @@ export function registerDiscoverTool(
       lines.push("- `lifeos_discover` — Show this architecture map");
       lines.push("- `lifeos_context_card` — Agent-scoped startup context (compact/schemas/workflows)");
       lines.push("- `lifeos_query` — Query any database (auto-detects property types)");
-      lines.push("- `lifeos_activity_log` — Activities by date range and category");
       lines.push("- `lifeos_tasks` — Tasks with priority and overdue detection");
-      lines.push("- `lifeos_subjective_journal` / `relational_journal` / `systemic_journal`");
-      lines.push("- `lifeos_financial_log` / `diet_log`");
       lines.push("- `lifeos_projects` / `quarterly_goals` / `annual_goals`");
       lines.push("- `lifeos_directives_risks` / `opportunities_strengths`");
       lines.push("");
@@ -141,10 +139,10 @@ export function registerDiscoverTool(
       lines.push("- `lifeos_create_entry` — Create tasks, journals, projects, campaigns, content, people");
       lines.push("- `lifeos_create_report` — Save analysis as agent memory in Reports DB");
       lines.push("");
-      lines.push("### Layer 5: Update & Archive Tools");
+      lines.push("### Layer 5: Update & Delete Tools");
       lines.push("- `lifeos_find_entry` — Find entries by name (resolve name → page_id)");
       lines.push("- `lifeos_update_entry` — Update page properties (status, progress, dates, etc.)");
-      lines.push("- `lifeos_archive_entry` — Archive (soft-delete) a page");
+      lines.push("- `lifeos_delete_entry` — Delete (archive) a page");
       lines.push("");
 
       // Synergistic Workflows
@@ -167,7 +165,7 @@ export function registerDiscoverTool(
       lines.push("");
 
       lines.push("### Missing Data Recovery (fill activity log gaps)");
-      lines.push("1. `lifeos_activity_log` — check what days have entries");
+      lines.push("1. `lifeos_query` (database: activity_log, filter_property: Date) — check what days have entries");
       lines.push("2. `lifeos_weekday_patterns` — typical pattern for the missing weekday");
       lines.push("3. Present suggestions to user for confirmation");
       lines.push("4. `lifeos_create_entry` — create confirmed entries (one per activity)");

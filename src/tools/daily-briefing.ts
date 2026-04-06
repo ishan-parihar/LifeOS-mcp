@@ -19,7 +19,7 @@ export function registerDailyBriefingTool(
 ) {
   server.tool(
     "lifeos_daily_briefing",
-    "Daily snapshot for a specific date. Returns: active tasks, recent activities (last 3 days), weekday pattern comparison with anomaly detection, suggested daily plan, journal entries, financial activity, and overdue alerts. Use with: lifeos_weekday_patterns (for deeper pattern analysis), lifeos_trajectory (for target gaps), lifeos_create_entry (to log suggested activities — confirm with user).",
+    "Daily snapshot for a specific date. Sections: active tasks, recent activities (last 3 days), weekday pattern comparison with anomaly detection, suggested daily plan, journal entries, financial activity, overdue alerts, today vs targets. Use with: lifeos_weekday_patterns (for deeper pattern analysis), lifeos_trajectory (for target gaps), lifeos_create_entry (to log suggested activities — confirm with user).",
     {
       date: z
         .string()
@@ -43,7 +43,7 @@ export function registerDailyBriefingTool(
       lines.push("## 📋 Today's Active Tasks");
       lines.push("");
       if (activeTasks.length === 0) {
-        lines.push("No active tasks. Consider reviewing your project backlog.");
+        lines.push("No active tasks.");
       } else {
         for (const p of activeTasks.slice(0, 10)) {
           const name = extractTitle(p);

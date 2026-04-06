@@ -106,6 +106,13 @@ export function extractRelationCount(page: NotionPage, propName: string): number
   return (prop as unknown as { relation: Array<unknown> }).relation?.length ?? 0;
 }
 
+export function extractRelationIds(page: NotionPage, propName: string): string[] {
+  const prop = page.properties[propName];
+  if (!prop || prop.type !== "relation") return [];
+  const rels = (prop as unknown as { relation: Array<{ id: string }> }).relation;
+  return rels?.map((r) => r.id) ?? [];
+}
+
 export function formatDate(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);

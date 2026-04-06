@@ -88,8 +88,6 @@ export function registerProductivityTool(
         // Activity Types DB not available
       }
 
-      markdown += `\n---\n\n> Next: Use \`lifeos_trajectory\` for target gap analysis, or \`lifeos_create_report\` to save this analysis.`;
-
       return {
         content: [{ type: "text" as const, text: markdown }],
       };

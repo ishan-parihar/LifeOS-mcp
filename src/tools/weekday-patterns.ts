@@ -128,10 +128,6 @@ export function registerWeekdayPatternsTool(
         }
       }
 
-      lines.push("---");
-      lines.push("");
-      lines.push("> Next: Use `lifeos_daily_briefing` for today's actuals vs pattern, or `lifeos_create_entry` to log suggested activities (confirm with user).");
-
       return {
         content: [{ type: "text" as const, text: lines.join("\n") }],
       };

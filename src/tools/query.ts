@@ -4,7 +4,7 @@ import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { extractTitle, extractString, extractDate } from "../transformers/shared.js";
 
-const FILTER_TYPES = ["select", "status", "rich_text", "title", "formula", "number", "date", "checkbox", "relation"] as const;
+const FILTER_TYPES = ["select", "status", "rich_text", "title", "formula", "number", "date", "checkbox", "relation", "unique_id"] as const;
 
 function buildFilter(property: string, filterType: string, value: string): Record<string, unknown> {
   switch (filterType) {
@@ -26,6 +26,13 @@ function buildFilter(property: string, filterType: string, value: string): Recor
       return { property, date: { equals: value } };
     case "relation":
       return { property, relation: { contains: value } };
+    case "unique_id": {
+      // Parse number from value - handle both "123" and "TASK-123" formats
+      const numMatch = String(value).match(/^([A-Za-z]+-)?(\d+)$/);
+      const num = numMatch ? parseInt(numMatch[2], 10) : parseInt(String(value), 10);
+      if (isNaN(num)) return { property, rich_text: { contains: String(value) } };
+      return { property, unique_id: { equals: num } };
+    }
     default:
       return { property, rich_text: { contains: value } };
   }
@@ -101,6 +108,8 @@ export function registerQueryTool(
               resolvedType = "date";
             } else if (detectedType === "relation") {
               resolvedType = "relation";
+            } else if (detectedType === "unique_id") {
+              resolvedType = "unique_id";
             } else {
               resolvedType = "rich_text";
             }

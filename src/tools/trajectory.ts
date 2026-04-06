@@ -3,6 +3,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { transformActivity } from "../transformers/activity.js";
+import { transformTask } from "../transformers/tasks.js";
+import { extractTitle, extractString, extractDate, extractNumber } from "../transformers/shared.js";
 import {
   loadActivityTargets, computePeriodMetrics, computeTrend, mapTrajectory,
   type ActivityTarget, type TrendPoint
@@ -92,8 +94,7 @@ function trajectoryToMarkdown(
     if (!target.isHabit) continue;
     const actual = currentMetrics.categoryDailyAvg.get(name) ?? 0;
     const compliance = target.targetDuration > 0 ? (actual / target.targetDuration * 100) : 0;
-    const bar = "█".repeat(Math.min(10, Math.round(compliance / 10))) + "░".repeat(Math.max(0, 10 - Math.round(compliance / 10)));
-    lines.push(`- **${name}:** ${compliance.toFixed(0)}% ${bar} (${actual.toFixed(1)}h / ${target.targetDuration}h target)`);
+    lines.push(`- **${name}:** ${compliance.toFixed(0)}% (${actual.toFixed(1)}h / ${target.targetDuration}h target)`);
   }
   lines.push("");
 
@@ -132,7 +133,7 @@ export function registerTrajectoryTool(
 ) {
   server.tool(
     "lifeos_trajectory",
-    "Target compliance analysis. Maps activity averages against ideal targets from Activity Types. Shows per-activity gaps, habit compliance, 30-day projections, and trend direction. Averages use tracked-hours only (untracked days excluded). Use with: lifeos_productivity_report (for allocation context), lifeos_weekday_patterns (for scheduling by weekday), lifeos_tasks (for task prioritization based on gaps).",
+    "Target compliance analysis. Maps activity averages against ideal targets from Activity Types DB. Shows per-activity gaps, habit compliance, 30-day projections, and trend direction. Cross-domain trajectories: task completion rate, financial trends. Averages use tracked-hours only (untracked days excluded). Use with: lifeos_productivity_report (for allocation context), lifeos_weekday_patterns (for scheduling by weekday), lifeos_tasks (for task prioritization based on gaps).",
     {
       period: PERIOD_PARAM,
       date_from: DATE_FROM_PARAM,
@@ -199,7 +200,87 @@ export function registerTrajectoryTool(
 
       let markdown = `> Showing: ${resolved.rangeLabel}\n\n`;
       markdown += trajectoryToMarkdown(currentMetrics, targets, trends);
-      markdown += `\n---\n\n> Next: Use \`lifeos_weekday_patterns\` to plan by weekday, or \`lifeos_create_report\` to save this analysis.`;
+
+      // Cross-domain trajectories: Task completion
+      const taskDb = getDbConfig(config, "tasks");
+      const taskResult = await notion.queryDataSource(taskDb.data_source_id, { page_size: 200 });
+      const tasks = taskResult.results.map(transformTask);
+      const completedTasks = tasks.filter(t => t.status === "Done");
+
+      if (completedTasks.length > 0) {
+        const dailyTaskMap = new Map<string, number>();
+        for (const t of completedTasks) {
+          // Use last_edited_time from raw page for completion date
+          const rawPage = taskResult.results.find(p => p.id === t.id);
+          if (!rawPage) continue;
+          const lastEdited = rawPage.last_edited_time || "";
+          if (!lastEdited) continue;
+          const dateStr = lastEdited.split("T")[0];
+          if (dateStr >= date_from_r && dateStr <= date_to_r) {
+            dailyTaskMap.set(dateStr, (dailyTaskMap.get(dateStr) || 0) + 1);
+          }
+        }
+
+        const taskTrendPoints: TrendPoint[] = [];
+        for (const [date, count] of [...dailyTaskMap.entries()].sort()) {
+          taskTrendPoints.push({ date, value: count });
+        }
+
+        if (taskTrendPoints.length >= 3) {
+          const taskTrend = computeTrend(taskTrendPoints, "Tasks Completed/Day");
+          const avgTasksPerDay = taskTrendPoints.reduce((s, p) => s + p.value, 0) / taskTrendPoints.length;
+
+          markdown += `\n## Task Completion Trajectory\n\n`;
+          markdown += `- **Average:** ${avgTasksPerDay.toFixed(1)} tasks/day\n`;
+          markdown += `- **Trend:** ${taskTrend.trend} (slope: ${taskTrend.slope > 0 ? "+" : ""}${taskTrend.slope.toFixed(3)}/day)\n`;
+          markdown += `- **Projected 7d:** ${taskTrend.projection7d.toFixed(1)} tasks/day\n`;
+          markdown += `- **Projected 30d:** ${taskTrend.projection30d.toFixed(1)} tasks/day\n`;
+        }
+      }
+
+      // Cross-domain trajectories: Financial trends
+      const finDb = getDbConfig(config, "financial_log");
+      const finResult = await notion.queryDataSource(finDb.data_source_id, {
+        page_size: 200,
+        filter: {
+          and: [
+            { property: "Date", date: { on_or_after: date_from_r } },
+            { property: "Date", date: { on_or_before: `${date_to_r}T23:59:59Z` } },
+          ],
+        },
+      });
+
+      if (finResult.results.length > 0) {
+        const revenueCategories = ["Business Revenue", "Client Payment", "Investment Income", "Income"];
+        const dailyRevenueMap = new Map<string, number>();
+
+        for (const p of finResult.results) {
+          const date = extractDate(p, "Date");
+          if (!date) continue;
+          const dateStr = date.split("T")[0];
+          const amount = extractNumber(p, "Amount") ?? 0;
+          const category = extractString(p, "Category");
+          if (revenueCategories.includes(category)) {
+            dailyRevenueMap.set(dateStr, (dailyRevenueMap.get(dateStr) || 0) + amount);
+          }
+        }
+
+        const revenueTrendPoints: TrendPoint[] = [];
+        for (const [date, amount] of [...dailyRevenueMap.entries()].sort()) {
+          revenueTrendPoints.push({ date, value: amount });
+        }
+
+        if (revenueTrendPoints.length >= 3) {
+          const revenueTrend = computeTrend(revenueTrendPoints, "Daily Revenue", true);
+          const avgRevenue = revenueTrendPoints.reduce((s, p) => s + p.value, 0) / revenueTrendPoints.length;
+
+          markdown += `\n## Financial Trajectory\n\n`;
+          markdown += `- **Average:** ₹${avgRevenue.toFixed(0)}/day\n`;
+          markdown += `- **Trend:** ${revenueTrend.trend} (slope: ₹${revenueTrend.slope.toFixed(0)}/day)\n`;
+          markdown += `- **Projected 7d:** ₹${revenueTrend.projection7d.toFixed(0)}\n`;
+          markdown += `- **Projected 30d:** ₹${revenueTrend.projection30d.toFixed(0)}\n`;
+        }
+      }
 
       return {
         content: [{ type: "text" as const, text: markdown }],

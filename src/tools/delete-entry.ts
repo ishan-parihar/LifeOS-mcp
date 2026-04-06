@@ -5,7 +5,7 @@ import { NotionClient } from "../notion/client.js";
 import { extractTitle } from "../transformers/shared.js";
 import { DB_KEYS } from "./entry-helpers.js";
 
-export function registerArchiveEntryTool(
+export function registerDeleteEntryTool(
   server: McpServer,
   config: LifeOSConfig,
   notion: NotionClient
@@ -13,11 +13,11 @@ export function registerArchiveEntryTool(
   const dbEnum = z.enum(DB_KEYS);
 
   server.tool(
-    "lifeos_archive_entry",
-    "Archive (soft-delete) a LifeOS entry. The entry is moved to the database's archive and hidden from normal queries. Use lifeos_find_entry first to get the page_id.",
+    "lifeos_delete_entry",
+    "Permanently delete a LifeOS entry. The entry is moved to the database's archive (Notion trash) and hidden from normal queries. Use lifeos_find_entry first to get the page_id.",
     {
       database: dbEnum.describe("Database the entry belongs to"),
-      page_id: z.string().describe("Page ID of the entry to archive (from lifeos_find_entry or lifeos_query results)"),
+      page_id: z.string().describe("Page ID of the entry to delete (from lifeos_find_entry or lifeos_query results)"),
     },
     async ({ database, page_id }) => {
       const db = getDbConfig(config, database);
@@ -25,7 +25,7 @@ export function registerArchiveEntryTool(
       await notion.archivePage(page_id);
 
       const lines = [
-        `## Entry Archived`,
+        `## Entry Deleted`,
         `- **Database:** ${db.name}`,
         `- **Page ID:** ${page_id}`,
         "",

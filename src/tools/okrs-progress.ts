@@ -11,7 +11,7 @@ export function registerOkrsProgressTool(
 ) {
   server.tool(
     "lifeos_okrs_progress",
-    "OKRs progress synthesis: KR rollups, health, blocked items, and project coverage map.",
+    "OKRs progress synthesis: KR rollups, health status, blocked items, and project coverage map. Shows progress percentages, key results, and linked projects. Use with: lifeos_alignment (for campaign coverage), lifeos_project_health (for project execution status), lifeos_quarterly_goals (for raw data).",
     {
       quarter: z.string().optional(),
       status: z.string().optional(),
@@ -30,8 +30,7 @@ export function registerOkrsProgressTool(
         const prog = extractNumber(g, "Progress");
         const health = extractString(g, "Health");
         const proj = extractRelationCount(g, "Projects");
-        const blocked = proj === 0 ? " ⚠️ No projects linked" : "";
-        lines.push(`## ${name}${blocked}`);
+        lines.push(`## ${name}`);
         if (health) lines.push(`- Health: ${health}`);
         if (prog !== null) lines.push(`- Progress: ${prog}%`);
         lines.push(`- Projects linked: ${proj}`);

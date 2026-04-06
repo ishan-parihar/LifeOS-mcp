@@ -3,7 +3,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { transformActivity } from "../transformers/activity.js";
+import { transformTask } from "../transformers/tasks.js";
 import { synthesizeMonth, monthSynthesisToMarkdown } from "../transformers/month-synthesis.js";
+import { extractTitle, extractString, extractDate, extractNumber } from "../transformers/shared.js";
 import {
   computePeriodMetrics, computeBaseline, computeDeviation, computeTrend,
   loadActivityTargets, type PeriodMetrics, type BaselineMetrics, type TrendPoint
@@ -60,8 +62,7 @@ function periodMetricsToMarkdown(
   const sorted = [...metrics.categoryBreakdown.entries()].sort((a, b) => b[1].hours - a[1].hours);
   for (const [cat, data] of sorted) {
     const dailyAvg = metrics.categoryDailyAvg.get(cat) ?? 0;
-    const bar = "█".repeat(Math.round(data.hours)) + "░".repeat(Math.max(0, 10 - Math.round(data.hours)));
-    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h total (${dailyAvg.toFixed(1)}h/day avg) (${data.pctOfTotal.toFixed(0)}%) ${bar} — ${data.count} entries`);
+    lines.push(`- **${cat}:** ${data.hours.toFixed(1)}h total (${dailyAvg.toFixed(1)}h/day avg) (${data.pctOfTotal.toFixed(0)}%) — ${data.count} entries`);
   }
   lines.push("");
 
@@ -106,7 +107,7 @@ export function registerTemporalAnalysisTool(
 ) {
   server.tool(
     "lifeos_temporal_analysis",
-    "Activity pattern analysis with baseline comparison, deviation detection, and trend analysis. Compares current period against N prior weeks. Optionally includes Month-level financial synthesis. Date range: past_week covers 8 calendar days, past_month covers 31. Use with: lifeos_productivity_report (for summary context), lifeos_trajectory (for target compliance), lifeos_create_report (save analysis).",
+    "Activity pattern analysis with baseline comparison, deviation detection, and trend analysis. Compares current period against N prior weeks. Multi-domain support: tasks (completion trends), financial (revenue/expense trends), diet (nutrition trends). Parameters: scope (day/week/month granularity), baseline_weeks (historical baseline), include_financial (month-level financial synthesis), include_tasks (task completion trends), include_diet (nutrition trends). Date range: past_week covers 8 calendar days, past_month covers 31. Use with: lifeos_productivity_report (for summary context), lifeos_trajectory (for target compliance), lifeos_create_report (save analysis).",
     {
       period: PERIOD_PARAM,
       date_from: DATE_FROM_PARAM,
@@ -114,8 +115,10 @@ export function registerTemporalAnalysisTool(
       scope: z.enum(["day", "week", "month"]).default("week").describe("Temporal granularity"),
       baseline_weeks: z.number().default(4).describe("Number of prior weeks to compute baseline"),
       include_financial: z.boolean().default(false).describe("Include Month-level financial synthesis if period spans a full month"),
+      include_tasks: z.boolean().default(false).describe("Include task completion trends"),
+      include_diet: z.boolean().default(false).describe("Include nutrition/diet trends"),
     },
-    async ({ period, date_from, date_to, scope, baseline_weeks, include_financial }) => {
+    async ({ period, date_from, date_to, scope, baseline_weeks, include_financial, include_tasks, include_diet }) => {
       const resolved = resolveDates(period, date_from, date_to);
       const date_from_r = resolved.date_from;
       const date_to_r = resolved.date_to;
@@ -211,10 +214,104 @@ export function registerTemporalAnalysisTool(
         }
       }
 
+      // Task completion trends (if requested)
+      let taskTrendSection = "";
+      if (include_tasks) {
+        const taskDb = getDbConfig(config, "tasks");
+        const taskResult = await notion.queryDataSource(taskDb.data_source_id, {
+          page_size: 200,
+        });
+        const tasks = taskResult.results.map(transformTask);
+
+        const completedTasks = tasks.filter(t => t.status === "Done");
+        const activeTasks = tasks.filter(t => ["Active", "Focus", "Up Next"].includes(t.status));
+        const overdueTasks = activeTasks.filter(t => t.isOverdue);
+
+        // Build daily completion trend using last_edited_time from raw pages
+        const taskTrendPoints: TrendPoint[] = [];
+        const dailyTaskMap = new Map<string, number>();
+        for (const t of completedTasks) {
+          const rawPage = taskResult.results.find(p => p.id === t.id);
+          if (!rawPage) continue;
+          const lastEdited = rawPage.last_edited_time || "";
+          if (!lastEdited) continue;
+          const dateStr = lastEdited.split("T")[0];
+          dailyTaskMap.set(dateStr, (dailyTaskMap.get(dateStr) || 0) + 1);
+        }
+        for (const [date, count] of [...dailyTaskMap.entries()].sort()) {
+          if (date >= date_from_r && date <= date_to_r) {
+            taskTrendPoints.push({ date, value: count });
+          }
+        }
+
+        let taskTrendStr = "";
+        if (taskTrendPoints.length >= 3) {
+          const taskTrend = computeTrend(taskTrendPoints, "Tasks Completed/Day");
+          taskTrendStr = `Trend: ${taskTrend.trend} (slope: ${taskTrend.slope > 0 ? "+" : ""}${taskTrend.slope.toFixed(3)}/day)`;
+        }
+
+        taskTrendSection = `
+
+## Task Completion Trends
+
+- **Completed:** ${completedTasks.length}
+- **Active:** ${activeTasks.length}
+- **Overdue:** ${overdueTasks.length}
+${taskTrendStr ? `- **${taskTrendStr}` : ""}
+`;
+      }
+
+      // Diet/nutrition trends (if requested)
+      let dietTrendSection = "";
+      if (include_diet) {
+        const dietDb = getDbConfig(config, "diet_log");
+        const dietResult = await notion.queryDataSource(dietDb.data_source_id, {
+          page_size: 100,
+          filter: {
+            and: [
+              { property: "Date", date: { on_or_after: date_from_r } },
+              { property: "Date", date: { on_or_before: `${date_to_r}T23:59:59Z` } },
+            ],
+          },
+        });
+
+        const dailyDietMap = new Map<string, number>();
+        for (const p of dietResult.results) {
+          const date = extractDate(p, "Date");
+          if (date) {
+            const dateStr = date.split("T")[0];
+            dailyDietMap.set(dateStr, (dailyDietMap.get(dateStr) || 0) + 1);
+          }
+        }
+
+        const dietTrendPoints: TrendPoint[] = [];
+        for (const [date, count] of [...dailyDietMap.entries()].sort()) {
+          dietTrendPoints.push({ date, value: count });
+        }
+
+        let dietTrendStr = "";
+        if (dietTrendPoints.length >= 3) {
+          const dietTrend = computeTrend(dietTrendPoints, "Meals Logged/Day");
+          dietTrendStr = `Trend: ${dietTrend.trend} (slope: ${dietTrend.slope > 0 ? "+" : ""}${dietTrend.slope.toFixed(3)}/day)`;
+        }
+
+        const totalDays = Math.ceil((new Date(date_to_r).getTime() - new Date(date_from_r).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const coverage = dietResult.results.length > 0 ? ((dietResult.results.length / totalDays) * 100).toFixed(0) : "0";
+
+        dietTrendSection = `
+
+## Nutrition Trends
+
+- **Meals logged:** ${dietResult.results.length}
+- **Coverage:** ${coverage}% of days
+${dietTrendStr ? `- **${dietTrendStr}` : ""}
+`;
+      }
+
       let markdown = `> Showing: ${resolved.rangeLabel}\n\n`;
       markdown += periodMetricsToMarkdown(currentMetrics, baseline, deviations, trends, monthSynthesis);
-      markdown += `\n---\n\n> Next: Use \`lifeos_trajectory\` for target compliance, or \`lifeos_create_report\` to save this analysis.`;
-
+      if (taskTrendSection) markdown += taskTrendSection;
+      if (dietTrendSection) markdown += dietTrendSection;
       return {
         content: [{ type: "text" as const, text: markdown }],
       };

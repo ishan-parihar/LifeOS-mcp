@@ -13,6 +13,8 @@
         "title": "Name",
         "id": "ID",
         "date": "Date",
+        "start_time": "Date",
+        "end_time": "Date",
         "activity_type": "Activity Type",
         "duration": "Duration",
         "activity_notes": "Activity Notes",
@@ -419,7 +421,8 @@
         "engagement": "Engagement",
         "engagement_rate": "Engagement Rate",
         "parent_content": "Parent Content",
-        "projects": "Projects"
+        "projects": "Projects",
+        "media_assets": "Media Assets"
       }
     },
     "activity_types": {
@@ -441,6 +444,18 @@
         "title": "Title",
         "report": "Report",
         "agent": "Agent"
+      }
+    },
+    "notes_management": {
+      "name": "Notes Management",
+      "data_source_id": "c8410fc7-e84d-4056-bd00-36cec1f99fb4",
+      "agent": "productivity",
+      "properties": {
+        "title": "Title",
+        "status": "Status",
+        "projects": "Projects",
+        "project_status": "Project Status",
+        "knowledge_categories": "Knowledge Categories"
       }
     }
   }

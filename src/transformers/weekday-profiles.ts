@@ -289,9 +289,8 @@ export function weekdayProfileToMarkdown(profile: WeekdayProfile): string {
     lines.push("|----------|-----------|--------|-----------|");
 
     for (const [cat, stats] of sorted) {
-      const freqBar = "█".repeat(Math.round(stats.frequency * 10)) + "░".repeat(10 - Math.round(stats.frequency * 10));
       lines.push(
-        `| ${cat} | ${stats.mean.toFixed(1)}h | ±${stats.stdDev.toFixed(1)}h | ${(stats.frequency * 100).toFixed(0)}% ${freqBar} |`
+        `| ${cat} | ${stats.mean.toFixed(1)}h | ±${stats.stdDev.toFixed(1)}h | ${(stats.frequency * 100).toFixed(0)}% |`
       );
     }
     lines.push("");

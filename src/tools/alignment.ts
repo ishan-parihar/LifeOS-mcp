@@ -14,7 +14,7 @@ export function registerAlignmentTool(
 ) {
   server.tool(
     "lifeos_alignment",
-    "Cross-domain alignment reports for CEO/COO/CMO. OKR↔Campaign coverage, stakeholder mapping, and project activity target checks.",
+    "Cross-domain alignment reports for CEO/COO/CMO. Actions: okr_campaign_coverage (OKR to campaign mapping), project_people_stakeholders (stakeholder analysis), project_activity_targets (activity vs target gaps). Use with: lifeos_okrs_progress (for OKR details), lifeos_project_health (for project status), lifeos_productivity_report (for activity context).",
     {
       action: ACTION.describe("Action to perform"),
       quarter: z.string().optional().describe("Quarter label or date range key"),
@@ -35,7 +35,6 @@ export function registerAlignmentTool(
           lines.push(`## ${gName}`);
           lines.push(`- Projects: ${projCount}`);
           if (projCount === 0) {
-            lines.push("- ⚠️ No linked projects — coverage gap");
             lines.push("");
             continue;
           }

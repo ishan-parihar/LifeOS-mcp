@@ -57,28 +57,121 @@ export function registerFindEntryTool(
 
   server.tool(
     "lifeos_find_entry",
-    "Find entries in a LifeOS database by name/title search. Returns page IDs and requested properties. Use this to resolve names to page IDs before updating entries. Use with: lifeos_update_entry (to update found entries), lifeos_archive_entry (to archive found entries).",
+    "Find entries in a LifeOS database by name/title search or by custom ID (e.g., 'TASK-123', 'PROJ-1'). Returns page IDs and requested properties. Use this to resolve names or IDs to page IDs before updating entries. Use with: lifeos_update_entry (to update found entries), lifeos_delete_entry (to delete found entries).",
     {
       database: dbEnum.describe("Database to search in"),
-      search: z.string().describe("Name or title to search for (partial match)"),
+      search: z.string().optional().describe("Name or title to search for (partial match). Also accepts ID format like 'TASK-123'."),
+      id: z.string().optional().describe("Search by custom ID (e.g., 'TASK-123', 'PROJ-1')"),
       return_properties: z.array(z.string()).optional().describe(
         "Property names to return for each match (e.g., ['Status', 'Priority', 'Date']). " +
-        "If omitted, returns title and page_id only. Use property names from the database schema."
+        "If omitted, returns title, ID (if available), and page_id only. Use property names from the database schema."
       ),
       limit: z.number().optional().describe("Max results to return (default: 5)"),
     },
-    async ({ database, search, return_properties, limit = 5 }) => {
+    async ({ database, search, id, return_properties, limit = 5 }) => {
       const db = getDbConfig(config, database);
       const titleField = TITLE_FIELD_MAP[database] || "Name";
+      const idPropName = db.properties?.id;
 
-      const result = await notion.queryDataSource(db.data_source_id, {
-        page_size: Math.min(limit, 100),
-        filter: {
-          property: titleField,
-          title: { contains: search },
-        },
-        sorts: [{ property: titleField, direction: "ascending" }],
-      });
+      // Detect ID-format input (e.g., "TASK-123", "PROJ-1")
+      const idPattern = /^([A-Za-z]+)-(\d+)$/;
+
+      // If explicit `id` param is provided, query by unique_id directly
+      if (id && idPattern.test(id)) {
+        const idNumber = parseInt(idPattern.exec(id)![2], 10);
+        const filter: any = idPropName
+          ? { property: idPropName, unique_id: { equals: idNumber } }
+          : { property: "ID", unique_id: { equals: idNumber } };
+
+        const result = await notion.queryDataSource(db.data_source_id, {
+          page_size: Math.min(limit, 100),
+          filter,
+          sorts: [{ property: titleField, direction: "ascending" }],
+        });
+
+        const lines: string[] = [];
+
+        if (result.results.length === 0) {
+          lines.push(`No entry found with ID "${id}" in ${db.name}.`);
+          return {
+            content: [{ type: "text" as const, text: lines.join("\n") }],
+          };
+        }
+
+        lines.push(`## Found ${result.results.length} entry in ${db.name} with ID "${id}"`);
+        lines.push("");
+
+        for (const page of result.results) {
+          const title = extractTitle(page);
+          lines.push(`### ${title}`);
+          lines.push(`- **Page ID:** ${page.id}`);
+          if (page.url) lines.push(`- **URL:** ${page.url}`);
+
+          // Show the custom ID if available
+          const actualIdProp = idPropName || "ID";
+          const idValue = extractProperty(page, actualIdProp);
+          if (idValue) lines.push(`- **ID:** ${idValue}`);
+
+          if (return_properties && return_properties.length > 0) {
+            for (const propName of return_properties) {
+              const val = extractProperty(page, propName);
+              if (val) lines.push(`- **${propName}:** ${val}`);
+            }
+          }
+          lines.push("");
+        }
+
+        if (result.results.length === 1) {
+          const page = result.results[0];
+          lines.push(`> Single match. Use page_id \`${page.id}\` with lifeos_update_entry or lifeos_delete_entry.`);
+        }
+
+        return {
+          content: [{ type: "text" as const, text: lines.join("\n") }],
+        };
+      }
+
+      // Check if search term matches ID pattern
+      const searchIsIdPattern = search && idPattern.test(search);
+      const searchIdNumber = searchIsIdPattern ? parseInt(idPattern.exec(search!)![2], 10) : null;
+
+      let result: any;
+
+      // If search matches ID pattern and DB has ID property, try compound or filter
+      if (searchIsIdPattern && searchIdNumber !== null && idPropName) {
+        try {
+          result = await notion.queryDataSource(db.data_source_id, {
+            page_size: Math.min(limit, 100),
+            filter: {
+              or: [
+                { property: titleField, title: { contains: search } },
+                { property: idPropName, unique_id: { equals: searchIdNumber } },
+              ],
+            },
+            sorts: [{ property: titleField, direction: "ascending" }],
+          });
+        } catch {
+          // Fall back to title-only search if unique_id property doesn't exist
+          result = await notion.queryDataSource(db.data_source_id, {
+            page_size: Math.min(limit, 100),
+            filter: {
+              property: titleField,
+              title: { contains: search },
+            },
+            sorts: [{ property: titleField, direction: "ascending" }],
+          });
+        }
+      } else {
+        // Standard title search
+        result = await notion.queryDataSource(db.data_source_id, {
+          page_size: Math.min(limit, 100),
+          filter: {
+            property: titleField,
+            title: { contains: search },
+          },
+          sorts: [{ property: titleField, direction: "ascending" }],
+        });
+      }
 
       const lines: string[] = [];
 
@@ -98,6 +191,11 @@ export function registerFindEntryTool(
         lines.push(`- **Page ID:** ${page.id}`);
         if (page.url) lines.push(`- **URL:** ${page.url}`);
 
+        // Show the custom ID if available
+        const actualIdProp = idPropName || "ID";
+        const idValue = extractProperty(page, actualIdProp);
+        if (idValue) lines.push(`- **ID:** ${idValue}`);
+
         if (return_properties && return_properties.length > 0) {
           for (const propName of return_properties) {
             const val = extractProperty(page, propName);
@@ -110,7 +208,7 @@ export function registerFindEntryTool(
       // If single result, also show a convenience snippet
       if (result.results.length === 1) {
         const page = result.results[0];
-        lines.push(`> Single match. Use page_id \`${page.id}\` with lifeos_update_entry or lifeos_archive_entry.`);
+        lines.push(`> Single match. Use page_id \`${page.id}\` with lifeos_update_entry or lifeos_delete_entry.`);
       }
 
       return {
