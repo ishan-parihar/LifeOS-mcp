@@ -22,7 +22,9 @@
         "logged": "Logged",
         "projects": "Projects",
         "days": "Days",
-        "activity_json": "Activity_JSON"
+        "activity_json": "Activity_JSON",
+        "energy": "energy",
+        "mood_delta": "mood_delta"
       }
     },
     "tasks": {
@@ -41,7 +43,10 @@
         "sprint_status": "Sprint Status",
         "weeks": "Weeks",
         "parent_task": "Parent task",
-        "sub_task": "Sub-task"
+        "sub_task": "Sub-task",
+        "tags": "Tags",
+        "estimated_hours": "Estimated Hours",
+        "completed_date": "Completed Date"
       }
     },
     "days": {
@@ -62,7 +67,8 @@
         "diet_log": "Diet Log",
         "weeks": "Weeks",
         "months": "Months",
-        "day_json": "Day_JSON"
+        "day_json": "Day_JSON",
+        "health_score": "Health Score"
       }
     },
     "weeks": {
