@@ -113,6 +113,16 @@ export function extractRelationIds(page: NotionPage, propName: string): string[]
   return rels?.map((r) => r.id) ?? [];
 }
 
+export function extractMultiSelect(page: NotionPage, propName: string): string[] {
+  const prop = page.properties[propName];
+  if (!prop) return [];
+  if (prop.type === "multi_select") {
+    const items = (prop as unknown as { multi_select: Array<{ name: string }> }).multi_select;
+    return items?.map((i) => i.name) ?? [];
+  }
+  return [];
+}
+
 export function formatDate(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);

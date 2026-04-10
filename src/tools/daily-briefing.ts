@@ -2,7 +2,7 @@ import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
-import { extractTitle, extractString, extractDate, extractRelationCount } from "../transformers/shared.js";
+import { extractTitle, extractString, extractDate, extractRelationCount, extractNumber } from "../transformers/shared.js";
 import { transformActivity } from "../transformers/activity.js";
 import { loadActivityTargets } from "../transformers/temporal.js";
 import { resolveDates } from "../transformers/dates.js";
@@ -105,6 +105,50 @@ export function registerDailyBriefingTool(
         }
       }
       lines.push("");
+
+      // Energy & Mood summary from recent activities
+      const energyCounts: Record<string, number> = {};
+      const moodCounts: Record<string, number> = {};
+      for (const p of actResult.results) {
+        const energy = extractString(p, "energy");
+        const moodDelta = extractString(p, "mood_delta");
+        if (energy) energyCounts[energy] = (energyCounts[energy] || 0) + 1;
+        if (moodDelta) moodCounts[moodDelta] = (moodCounts[moodDelta] || 0) + 1;
+      }
+      if (Object.keys(energyCounts).length > 0 || Object.keys(moodCounts).length > 0) {
+        lines.push("## ⚡ Energy & Mood");
+        lines.push("");
+        if (Object.keys(energyCounts).length > 0) {
+          lines.push("**Energy Distribution:**");
+          const energyOrder = ["High", "Medium", "Low"];
+          for (const level of energyOrder) {
+            if (energyCounts[level]) {
+              lines.push(`- ${level}: ${energyCounts[level]}`);
+            }
+          }
+          for (const [level, count] of Object.entries(energyCounts)) {
+            if (!energyOrder.includes(level)) {
+              lines.push(`- ${level}: ${count}`);
+            }
+          }
+          lines.push("");
+        }
+        if (Object.keys(moodCounts).length > 0) {
+          lines.push("**Mood Deltas:**");
+          const moodOrder = ["↑", "→", "↓"];
+          for (const delta of moodOrder) {
+            if (moodCounts[delta]) {
+              lines.push(`- ${delta}: ${moodCounts[delta]}`);
+            }
+          }
+          for (const [delta, count] of Object.entries(moodCounts)) {
+            if (!moodOrder.includes(delta)) {
+              lines.push(`- ${delta}: ${count}`);
+            }
+          }
+          lines.push("");
+        }
+      }
 
       // Compute today's hours per activity type (for use in pattern section)
       const todayActivities = actResult.results.filter(p => {
@@ -243,6 +287,29 @@ export function registerDailyBriefingTool(
           }
           lines.push("");
         }
+      }
+
+      // Health score from today's days entry
+      try {
+        const daysDb = getDbConfig(config, "days");
+        const daysResult = await notion.queryDataSource(daysDb.data_source_id, {
+          page_size: 1,
+          filter: {
+            and: [
+              { property: "Date", date: { on_or_after: `${targetDate}T00:00:00Z` } },
+              { property: "Date", date: { on_or_before: `${targetDate}T23:59:59Z` } },
+            ],
+          },
+        });
+        if (daysResult.results.length > 0) {
+          const healthScore = extractNumber(daysResult.results[0], "health_score");
+          if (healthScore !== null) {
+            lines.push(`## 🏥 Health Score: ${healthScore}/100`);
+            lines.push("");
+          }
+        }
+      } catch {
+        // Days DB not available or query failed
       }
 
       // 4. Financial snapshot (recent)

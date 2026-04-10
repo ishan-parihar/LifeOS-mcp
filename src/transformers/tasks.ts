@@ -3,6 +3,8 @@ import {
   extractTitle,
   extractString,
   extractDate,
+  extractNumber,
+  extractMultiSelect,
   extractRelationCount,
   formatDateTime,
   daysAgo,
@@ -20,6 +22,9 @@ export interface TaskEntry {
   projectCount: number;
   daysAgo: number;
   isOverdue: boolean;
+  tags: string[];
+  estimatedHours: number | null;
+  completedDate: string;
 }
 
 const ACTIVE_STATUSES = new Set(["Active", "Focus", "Up Next", "Waiting", "Paused"]);
@@ -45,6 +50,9 @@ export function transformTask(page: NotionPage): TaskEntry {
     projectCount: extractRelationCount(page, "Projects"),
     daysAgo: daysAgo(actionDate),
     isOverdue,
+    tags: extractMultiSelect(page, "Tags"),
+    estimatedHours: extractNumber(page, "Estimated Hours"),
+    completedDate: extractDate(page, "Completed Date"),
   };
 }
 
@@ -88,12 +96,14 @@ export function tasksToMarkdown(
       const dueStr = t.actionDate ? formatDateTime(t.actionDate) : "No date";
       const statusIcon =
         t.status === "Focus" ? "🎯" : t.status === "Active" ? "▶️" : "⏸️";
+      const tagsStr = t.tags.length > 0 ? ` ${t.tags.map(tag => `[${tag}]`).join(" ")}` : "";
       lines.push(
-        `- ${statusIcon} **[${t.status}]** ${t.id}: ${t.name}`
+        `- ${statusIcon} **[${t.status}]** ${t.id}: ${t.name}${tagsStr}`
       );
       if (t.priority) lines.push(`  - Priority: ${t.priority}`);
       if (t.actionDate) lines.push(`  - Action Date: ${dueStr}`);
       if (t.monitor) lines.push(`  - Monitor: ${t.monitor}`);
+      if (t.estimatedHours !== null) lines.push(`  - Estimated: ${t.estimatedHours}h`);
     }
     lines.push("");
   }
@@ -102,8 +112,11 @@ export function tasksToMarkdown(
     lines.push("### Completed/Cancelled");
     lines.push("");
     for (const t of done.slice(0, 10)) {
+      const completedStr = t.completedDate
+        ? `, completed ${formatDateTime(t.completedDate)}`
+        : "";
       lines.push(
-        `- ~~${t.id}: ${t.name}~~ (${t.status})`
+        `- ~~${t.id}: ${t.name}~~ (${t.status}${completedStr})`
       );
     }
     if (done.length > 10) {
