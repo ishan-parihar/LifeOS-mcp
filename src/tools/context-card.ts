@@ -121,6 +121,7 @@ function compactCard(config: LifeOSConfig, agent: AgentKind, version: string): s
     lines.push("- Today/Week → lifeos_daily_briefing(), lifeos_productivity_report(period='past_week')");
     lines.push("- Trajectory → lifeos_trajectory(period='past_week'), lifeos_weekday_patterns(period='past_month')");
     lines.push("- Tasks → lifeos_tasks(status='Active'|overdue_only=true)");
+    lines.push("- Notes → lifeos_create_entry(database='notes_management', …) for meeting/research notes");
   } else if (agent === "financial") {
     lines.push("- Log transactions → lifeos_create_entry(database='financial_log', …)");
     lines.push("- Month synthesis → lifeos_temporal_analysis(period='past_month', include_financial=true)");
@@ -157,6 +158,7 @@ function compactCard(config: LifeOSConfig, agent: AgentKind, version: string): s
   } else if (agent === "productivity") {
     lines.push("- Morning planning: lifeos_daily_briefing → pick 3 tasks via lifeos_tasks(status='Focus')");
     lines.push("- Weekly review: lifeos_productivity_report(period='past_week') → lifeos_create_report(save)");
+    lines.push("- Knowledge capture: lifeos_create_entry(database='notes_management') for meeting/research notes");
   } else if (agent === "financial") {
     lines.push("- Month close: ensure financial_log entries complete → run temporal_analysis include_financial");
   } else if (agent === "relational") {

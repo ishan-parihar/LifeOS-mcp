@@ -109,6 +109,7 @@ export function registerDiscoverTool(
       lines.push("");
       lines.push("### Layer 1: Data Access");
       lines.push("- `lifeos_discover` — Show this architecture map");
+      lines.push("- `lifeos_query_db_schema` — Get real-time schema for any database (property names, types, select options)");
       lines.push("- `lifeos_context_card` — Agent-scoped startup context (compact/schemas/workflows)");
       lines.push("- `lifeos_query` — Query any database (auto-detects property types)");
       lines.push("- `lifeos_tasks` — Tasks with priority and overdue detection");
@@ -136,8 +137,12 @@ export function registerDiscoverTool(
       lines.push("- `lifeos_weekday_patterns` — Per-weekday activity profiles, anomaly detection, suggested plans");
       lines.push("");
       lines.push("### Layer 4: Write Tools");
-      lines.push("- `lifeos_create_entry` — Create tasks, journals, projects, campaigns, content, people");
-      lines.push("- `lifeos_create_report` — Save analysis as agent memory in Reports DB");
+      lines.push("- `lifeos_create_entry` — Create tasks, journals, projects, campaigns, content, people, notes (notes_management)");
+      lines.push("- `lifeos_create_report` — Save structured analysis outputs & agent memory in Reports DB (NOT for meeting/research notes → use notes_management)");
+      lines.push("- `lifeos_log_activity` — Log a time-tracked activity (start/end time, type, notes)");
+      lines.push("- `lifeos_complete_task` — Mark task as Done by name search");
+      lines.push("- `lifeos_log_transaction` — Log financial transaction (amount, category, type)");
+      lines.push("- `lifeos_journal_entry` — Create journal entry (subjective/relational/systemic/diet)");
       lines.push("");
       lines.push("### Layer 5: Update & Delete Tools");
       lines.push("- `lifeos_find_entry` — Find entries by name (resolve name → page_id)");
@@ -195,6 +200,12 @@ export function registerDiscoverTool(
       lines.push("1. `lifeos_find_entry` (database: content_pipeline, search: content name) — find the entry");
       lines.push("2. `lifeos_update_entry` (page_id, {status: Complete, live_url: url}) — mark published");
       lines.push("3. Later: `lifeos_update_entry` (page_id, {reach: N, engagement: N}) — add metrics");
+      lines.push("");
+
+      lines.push("### Knowledge Capture (meeting notes, research, knowledge)");
+      lines.push("1. `lifeos_create_entry` (database: notes_management, name: note title, properties: {status: \"New Note\", projects: [...]}) — create the note");
+      lines.push("2. Content is stored as rich markdown page body automatically");
+      lines.push("3. Later: `lifeos_update_entry` (page_id, {status: \"Live\"}) — promote active notes");
       lines.push("");
 
       return {

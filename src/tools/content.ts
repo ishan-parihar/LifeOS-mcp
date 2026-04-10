@@ -28,7 +28,7 @@ export function registerContentTool(
 ) {
   server.tool(
     "lifeos_content",
-    "Content Pipeline operations for agents: list, guarded transitions, publish with URL, bulk metrics update, and calendar view.",
+    "Content Pipeline operations. Actions: 'list' (filter by status/platforms/campaign/date), 'transition' (guard status change), 'publish' (mark published with live_url), 'update_metrics' (bulk reach/clicks/engagement), 'calendar' (upcoming content by date). Use with: lifeos_campaigns for campaign context, lifeos_find_entry to resolve content IDs.",
     {
       action: ACTION.describe("Action to perform"),
       // list filters

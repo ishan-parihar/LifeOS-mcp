@@ -85,14 +85,14 @@ export function registerStrategicTools(
   registerStrategicTool(
     server, config, notion, "directives_risk_log",
     "lifeos_directives_risks",
-    "Retrieve directives and risks with threat levels, likelihood, impact, and mitigation status.",
+    "Retrieve directives and risks with threat levels, likelihood, impact, and mitigation status. Use with: lifeos_projects (project risk context), lifeos_opportunities_strengths (risk/opportunity balance).",
     transformDirectiveRisk,
     directivesRisksToMarkdown
   );
   registerStrategicTool(
     server, config, notion, "opportunities_strengths",
     "lifeos_opportunities_strengths",
-    "Retrieve opportunities and strengths with leverage scores and activation status.",
+    "Retrieve opportunities and strengths with leverage scores and activation status. Use with: lifeos_projects (project leverage context), lifeos_directives_risks (risk/opportunity balance).",
     transformOpportunityStrength,
     opportunitiesStrengthsToMarkdown
   );

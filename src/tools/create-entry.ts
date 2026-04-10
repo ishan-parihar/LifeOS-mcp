@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { LifeOSConfig, getDbConfig } from "../config.js";
 import { NotionClient } from "../notion/client.js";
 import { markdownToNotionChildren } from "../transformers/notion-blocks.js";
-import { DB_KEYS, DbKey, DB_DESCRIPTIONS, buildNotionProperties } from "./entry-helpers.js";
+import { DB_KEYS, DbKey, buildNotionProperties } from "./entry-helpers.js";
 
 export function registerCreateEntryTool(
   server: McpServer,
@@ -14,14 +14,13 @@ export function registerCreateEntryTool(
 
   server.tool(
     "lifeos_create_entry",
-    "Create a new entry in any LifeOS database. Schema-aware: tool parameters document available properties per database. Always confirm with user before creating entries based on estimates or suggestions. Use with: lifeos_weekday_patterns (suggested activities for missing days), lifeos_daily_briefing (tasks from daily context), lifeos_create_report (save analysis outputs).\n\n" +
-    Object.entries(DB_DESCRIPTIONS).map(([k, v]) => `**${k}**: ${v}`).join("\n\n"),
+    "Create a new entry in any LifeOS database. Use lifeos_query_db_schema(database) first to see available properties for the target database. Always confirm with user before creating entries based on estimates or suggestions. Use with: lifeos_query_db_schema (schema lookup), lifeos_weekday_patterns (suggested activities for missing days), lifeos_daily_briefing (tasks from daily context), lifeos_create_report (save analysis outputs).",
     {
       database: dbEnum.describe("Database to create entry in"),
       name: z.string().describe("Entry title / name"),
       properties: z.record(z.unknown()).optional().describe(
         "Properties as a JSON object. Only include fields relevant to the chosen database. " +
-        "See tool description for available properties per database."
+        "Use lifeos_query_db_schema(database) to see available property keys."
       ),
     },
     async ({ database, name, properties = {} }) => {

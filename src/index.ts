@@ -19,6 +19,8 @@ import { registerFindEntryTool } from "./tools/find-entry.js";
 import { registerUpdateEntryTool } from "./tools/update-entry.js";
 import { registerDeleteEntryTool } from "./tools/delete-entry.js";
 import { registerContextCardTool } from "./tools/context-card.js";
+import { registerQueryDbSchemaTool } from "./tools/query-db-schema.js";
+import { registerLogActivityTool, registerCompleteTaskTool, registerLogTransactionTool, registerJournalEntryTool } from "./tools/atomic-writes.js";
 import { registerContentTool } from "./tools/content.js";
 import { registerCampaignsTool } from "./tools/campaigns.js";
 import { registerPlanningOpsTool } from "./tools/planning-ops.js";
@@ -51,6 +53,7 @@ const server = new McpServer({
 
 // Layer 1: Data Access
 registerDiscoverTool(server, config, notion);
+registerQueryDbSchemaTool(server, config, notion);
 registerQueryTool(server, config, notion);
 registerTasksTool(server, config, notion);
 registerJournalingTools(server, config, notion);
@@ -88,6 +91,11 @@ registerQuarterlyRetrospectiveTool(server, config, notion);
 // Layer 4: Write Tools
 registerCreateEntryTool(server, config, notion);
 registerCreateReportTool(server, config, notion);
+// Layer 4b: Atomic Write Tools (high-frequency operations)
+registerLogActivityTool(server, config, notion);
+registerCompleteTaskTool(server, config, notion);
+registerLogTransactionTool(server, config, notion);
+registerJournalEntryTool(server, config, notion);
 
 // Layer 5: Update & Delete Tools
 registerFindEntryTool(server, config, notion);

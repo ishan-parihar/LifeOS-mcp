@@ -303,7 +303,7 @@ export const DB_DESCRIPTIONS: Record<DbKey, string> = {
 
   opportunities_strengths: `Opportunities & Strengths Log — status (Identified|Activated|Leveraged|Archived), log_type (Opportunity|Strength), leverage_score (Seed|Medium-Impact|High-Leverage), description_activation (text), last_assessed (YYYY-MM-DD), projects (relation), quarterly_goals (relation), systemic_journal (relation)`,
 
-  reports: `Reports — report (text), agent (text)`,
+  reports: `Reports — report (text), agent (text). Use exclusively for saving structured analysis outputs, weekly/monthly reviews, and agent memory from LifeOS synthesis tools (lifeos_productivity_report, lifeos_temporal_analysis, lifeos_trajectory). Dedicated write tool: lifeos_create_report. NOT for meeting notes, research notes, or knowledge capture — use notes_management for those.`,
 
   days: `Days — date (YYYY-MM-DD), day_number (number), status (Active|Done|Archived), activity_logs (relation), subjective_journal (relation), systemic_journal (relation), relational_journal (relation), diet_log (relation), weeks (relation), months (relation)`,
 
@@ -317,7 +317,7 @@ export const DB_DESCRIPTIONS: Record<DbKey, string> = {
 
   activity_types: `Activity Types — frequency (Daily|Weekly|Monthly|Ad-hoc), duration (number: hours), habit (Yes|No)`,
 
-  notes_management: `Notes Management — status (New Note|Live|Priority/Highlight|Archived Note), projects (relation: array of project page IDs), knowledge_categories (relation: array of category page IDs). Use this for large notes, meeting notes, research notes, and knowledge capture. Supports rich markdown content as page body.`,
+  notes_management: `Notes Management — status (New Note|Live|Priority/Highlight|Archived Note), projects (relation: array of project page IDs), knowledge_categories (relation: array of category page IDs). Use for large notes, meeting notes, research notes, and knowledge capture. Supports rich markdown content as page body. NOT for analysis outputs or agent memory from synthesis tools — use reports (via lifeos_create_report) for those.`,
 };
 
 export interface PropertyBuilderResult {

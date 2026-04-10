@@ -13,7 +13,7 @@ export function registerCampaignsTool(
 ) {
   server.tool(
     "lifeos_campaigns",
-    "Campaign Management operations: list and brief. Use with content tools for pipeline execution.",
+    "Campaign Management operations. Actions: 'list' (filter by status/date/platforms), 'brief' (single campaign details by campaign_id). Use with: lifeos_content for pipeline execution, lifeos_alignment for OKR↔campaign coverage.",
     {
       action: ACTION.describe("Action to perform"),
       status: z.string().optional(),

@@ -77,26 +77,26 @@ export function registerJournalingTools(
   registerJournalTool(
     server, config, notion, "subjective_journal",
     "lifeos_subjective_journal",
-    "Retrieve subjective journal entries (internal states, emotions, reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_relational_journal, lifeos_systemic_journal, lifeos_daily_briefing."
+    "Retrieve subjective journal entries (internal states, emotions, reflections). Use with: lifeos_relational_journal, lifeos_systemic_journal, lifeos_daily_briefing."
   );
   registerJournalTool(
     server, config, notion, "relational_journal",
     "lifeos_relational_journal",
-    "Retrieve relational journal entries (interactions, relationship reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_subjective_journal, lifeos_people (People DB)."
+    "Retrieve relational journal entries (interactions, relationship reflections). Use with: lifeos_subjective_journal, lifeos_people (People DB)."
   );
   registerJournalTool(
     server, config, notion, "systemic_journal",
     "lifeos_systemic_journal",
-    "Retrieve systemic journal entries (systems-level observations, project reflections). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_subjective_journal, lifeos_projects."
+    "Retrieve systemic journal entries (systems-level observations, project reflections). Use with: lifeos_subjective_journal, lifeos_projects."
   );
   registerJournalTool(
     server, config, notion, "financial_log",
     "lifeos_financial_log",
-    "Retrieve financial log entries (amounts, categories, transaction types). Date range: past_day (2d), past_week (8d), past_month (31d). Use with: lifeos_temporal_analysis (include_financial for month synthesis)."
+    "Retrieve financial log entries (amounts, categories, transaction types). Use with: lifeos_temporal_analysis (include_financial for month synthesis)."
   );
   registerJournalTool(
     server, config, notion, "diet_log",
     "lifeos_diet_log",
-    "Retrieve diet log entries (nutrition, meals). Date range: past_day (2d), past_week (8d), past_month (31d)."
+    "Retrieve diet log entries (nutrition, meals). Use with: lifeos_health_vitality (component scores), lifeos_trajectory (nutrition target gaps)."
   );
 }

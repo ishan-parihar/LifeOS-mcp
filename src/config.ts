@@ -36,7 +36,7 @@ export function getDbConfig(config: LifeOSConfig, key: string): DbConfig {
 
 export function getDbsByAgent(config: LifeOSConfig, agent: string): Record<string, DbConfig> {
   const result: Record<string, DbConfig> = {};
-  for (const [key, db] of Object.entries(config.databases)) {
+  for (const [key, db] of Object.entries(config.databases) as [string, DbConfig][]) {
     if (db.agent === agent) {
       result[key] = db;
     }

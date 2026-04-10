@@ -15,7 +15,7 @@ export function registerPlanningOpsTool(
 ) {
   server.tool(
     "lifeos_planning_ops",
-    "Planning operations for COO Productivity. Morning planner, weekly review, and habit compliance summaries with suggested actions (dry-run by default).",
+    "Planning operations. Actions: 'morning_planner' (scored task priority for today based on overdue/priority/action-date), 'weekly_review' (task completion summary, overdue tasks, habit compliance, dry-run by default). Use with: lifeos_daily_briefing for full daily context, lifeos_tasks for raw task data.",
     {
       action: ACTION.describe("Action to perform"),
       date: z.string().optional().describe("Date for morning planner (YYYY-MM-DD)"),

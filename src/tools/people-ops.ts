@@ -14,7 +14,7 @@ export function registerPeopleOpsTool(
 ) {
   server.tool(
     "lifeos_people_ops",
-    "People operations for CRO Relational Counsellor. Cadence review, follow-up queueing, and interaction logging (dry-run by default).",
+    "People operations. Actions: 'cadence_review' (who needs reconnecting based on Last Connected Date vs Connection Frequency), 'follow_up_queue' (people overdue for contact), 'log_interaction' (create relational_journal entry, dry-run by default). Use with: lifeos_find_entry(people) to resolve person IDs, lifeos_relational_journal for interaction history.",
     {
       action: ACTION.describe("Action to perform"),
       date_from: z.string().optional(),

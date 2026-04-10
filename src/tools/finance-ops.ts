@@ -14,7 +14,7 @@ export function registerFinanceOpsTool(
 ) {
   server.tool(
     "lifeos_finance_ops",
-    "Finance operations for CFO Financial. Month close, anomalies, and cashflow summary (dry-run by default).",
+    "Finance operations. Actions: 'month_close' (monthly financial summary with prior-month comparison), 'anomalies' (z-score spending anomaly detection), 'cashflow_summary' (income/expense breakdown by category and capital engine), 'receivables'/'payables' (draft tasks for outstanding amounts, dry-run by default). Use with: lifeos_financial_log for raw entries, lifeos_temporal_analysis(include_financial) for trend synthesis.",
     {
       action: ACTION.describe("Action to perform"),
       month: z.string().optional().describe("YYYY-MM for month_close"),
