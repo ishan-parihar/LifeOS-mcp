@@ -57,6 +57,16 @@ export function extractString(page: NotionPage, propName: string): string {
       return String((prop as unknown as { checkbox: boolean }).checkbox);
     case "last_edited_time":
       return (prop as unknown as { last_edited_time: string }).last_edited_time ?? "";
+    case "multi_select": {
+      const multi = (prop as unknown as { multi_select: Array<{ name: string }> | null }).multi_select;
+      return multi?.map((m) => m.name).join(", ") ?? "";
+    }
+    case "url": {
+      return (prop as unknown as { url: string | null }).url ?? "";
+    }
+    case "email": {
+      return (prop as unknown as { email: string | null }).email ?? "";
+    }
     default:
       return "";
   }

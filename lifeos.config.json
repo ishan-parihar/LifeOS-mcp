@@ -23,8 +23,10 @@
         "projects": "Projects",
         "days": "Days",
         "activity_json": "Activity_JSON",
-        "energy": "energy",
-        "mood_delta": "mood_delta"
+        "energy": "Energy",
+        "mood_delta": "Mood Delta",
+        "notes_body": "Notes Body",
+        "activity_type_rel": "Activity Type Rel"
       }
     },
     "tasks": {
@@ -44,9 +46,10 @@
         "weeks": "Weeks",
         "parent_task": "Parent task",
         "sub_task": "Sub-task",
-        "tags": "Tags",
         "estimated_hours": "Estimated Hours",
-        "completed_date": "Completed Date"
+        "completed_date": "Completed Date",
+        "tags": "Tags",
+        "blocked_by": "Blocked By"
       }
     },
     "days": {
@@ -182,7 +185,11 @@
         "tasks": "Tasks",
         "people": "People",
         "quarterly_goals": "Quarterly Goals",
-        "campaigns": "Campaign Calendar"
+        "campaigns": "Campaign Calendar",
+        "phase": "Phase",
+        "budget_allocated": "Budget Allocated",
+        "budget_spent": "Budget Spent",
+        "team": "Team"
       }
     },
     "subjective_journal": {
@@ -195,7 +202,11 @@
         "date": "Date",
         "days": "Days",
         "psychograph": "Psychograph",
-        "subjective_json": "Subjective_JSON"
+        "subjective_json": "Subjective_JSON",
+        "energy_level": "Energy Level",
+        "stress_level": "Stress Level",
+        "mood_trigger": "Mood Trigger",
+        "sleep_hours": "Sleep Hours"
       }
     },
     "relational_journal": {
@@ -209,7 +220,10 @@
         "days": "Days",
         "people": "People",
         "relationship_status": "Relationship Status",
-        "relational_json": "Relational_JSON"
+        "relational_json": "Relational_JSON",
+        "interaction_type": "Interaction Type",
+        "sentiment": "Sentiment",
+        "follow_up_needed": "Follow Up Needed"
       }
     },
     "systemic_journal": {
@@ -246,7 +260,10 @@
         "weeks": "Weeks",
         "months": "Months",
         "projects": "Projects",
-        "financial_json": "Financial_JSON"
+        "financial_json": "Financial_JSON",
+        "signed_amount": "Signed Amount",
+        "recurring": "Recurring",
+        "receipt_url": "Receipt URL"
       }
     },
     "diet_log": {
@@ -259,7 +276,20 @@
         "date": "Date",
         "days": "Days",
         "nutrition": "Nutrition",
-        "diet_json": "Diet_JSON"
+        "diet_json": "Diet_JSON",
+        "log_type": "Log Type",
+        "meal_type": "Meal Type",
+        "calories": "Calories",
+        "protein_g": "Protein (g)",
+        "water_ml": "Water (ml)",
+        "caffeine_mg": "Caffeine (mg)",
+        "supplements": "Supplements",
+        "symptoms": "Symptoms",
+        "vitals_notes": "Vitals Notes",
+        "energy_level": "Energy Level",
+        "sleep_quality": "Sleep Quality",
+        "mood": "Mood",
+        "environment": "Environment"
       }
     },
     "quarterly_goals": {
@@ -339,7 +369,9 @@
         "last_assessed": "Last Assessed",
         "projects": "Projects",
         "quarterly_goals": "Quarterly Goals",
-        "systemic_journal": "Systemic Journal"
+        "systemic_journal": "Systemic Journal",
+        "opportunity_type": "Opportunity Type",
+        "activation_date": "Activation Date"
       }
     },
     "people": {
@@ -373,7 +405,10 @@
         "influence_toolkit": "Influence Toolkit",
         "connection_frequency": "In days Connection Frequency",
         "reconnect_by": "Reconnect By",
-        "last_connected_date": "Last Connected Date"
+        "last_connected_date": "Last Connected Date",
+        "email": "Email",
+        "timezone": "Timezone",
+        "last_interaction_sentiment": "Last Interaction Sentiment"
       }
     },
     "campaigns": {
@@ -401,7 +436,9 @@
         "conversion_rate": "Conversion Rate",
         "viral_score": "Viral Score",
         "seo_keywords": "SEO Keywords",
-        "content_waterfall": "Content Waterfall"
+        "content_waterfall": "Content Waterfall",
+        "status": "Status",
+        "budget_allocated": "Budget Allocated"
       }
     },
     "content_pipeline": {
@@ -428,7 +465,9 @@
         "engagement_rate": "Engagement Rate",
         "parent_content": "Parent Content",
         "projects": "Projects",
-        "media_assets": "Media Assets"
+        "media_assets": "Media Assets",
+        "topic_hook": "Topic Hook",
+        "evergreen": "Evergreen"
       }
     },
     "activity_types": {
@@ -439,7 +478,10 @@
         "title": "Activity Types",
         "frequency": "Frequency",
         "duration": "Duration (in hrs)",
-        "habit": "Habit"
+        "habit": "Habit",
+        "category": "Category",
+        "is_health_tracked": "Is Health Tracked",
+        "target_per_week": "Target Per Week"
       }
     },
     "reports": {
@@ -449,7 +491,9 @@
       "properties": {
         "title": "Title",
         "report": "Report",
-        "agent": "Agent"
+        "agent": "Agent",
+        "report_type": "Report Type",
+        "period_covered": "Period Covered"
       }
     },
     "notes_management": {
@@ -461,7 +505,26 @@
         "status": "Status",
         "projects": "Projects",
         "project_status": "Project Status",
-        "knowledge_categories": "Knowledge Categories"
+        "knowledge_categories": "Knowledge Categories",
+        "body": "Body"
+      }
+    },
+    "financial_accounts": {
+      "name": "Financial Accounts",
+      "data_source_id": "265c18ce-5aab-80bf-a694-000bd7d8b0f7",
+      "agent": "journaling",
+      "properties": {
+        "title": "Name",
+        "id": "ID",
+        "account_type": "Account Type",
+        "balance_current": "Current Balance",
+        "balance_as_of": "Balance As Of",
+        "currency": "Currency",
+        "is_active": "Is Active",
+        "institution": "Institution",
+        "interest_rate": "Interest Rate",
+        "financial_log": "Financial Log",
+        "months": "Months"
       }
     }
   }

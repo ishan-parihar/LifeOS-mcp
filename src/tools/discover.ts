@@ -27,6 +27,7 @@ const LAYER_MAP: Record<string, string> = {
   activity_types: "reference",
   reports: "reference",
   notes_management: "reference",
+  financial_accounts: "reference",
 };
 
 export function registerDiscoverTool(

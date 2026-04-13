@@ -1,4 +1,4 @@
-import { markdownToRichText } from "../transformers/notion-blocks.js";
+import { markdownToRichText, markdownToNotionChildren } from "../transformers/notion-blocks.js";
 
 export const DB_KEYS = [
   // Temporal / Ledger
@@ -91,6 +91,7 @@ const PROPERTY_NAME_MAP: Record<string, string> = {
   progress: "Progress",
 
   // Rich text
+  body: "Body",
   description: "Description",
   psychograph: "Psychograph",
   nutrition: "Nutrition",
@@ -218,6 +219,9 @@ const URL_KEYS = new Set(["live_url"]);
 // Fields that should be formatted as files (external URLs)
 const FILE_KEYS = new Set(["media_assets"]);
 
+// Fields that represent page body content — converted to Notion blocks
+const BODY_KEYS = new Set(["body", "content", "page_content"]);
+
 const RELATION_KEYS: Record<string, string> = {
   projects: "Projects",
   people: "People",
@@ -317,7 +321,7 @@ export const DB_DESCRIPTIONS: Record<DbKey, string> = {
 
   activity_types: `Activity Types — frequency (Daily|Weekly|Monthly|Ad-hoc), duration (number: hours), habit (Yes|No)`,
 
-  notes_management: `Notes Management — status (New Note|Live|Priority/Highlight|Archived Note), projects (relation: array of project page IDs), knowledge_categories (relation: array of category page IDs). Use for large notes, meeting notes, research notes, and knowledge capture. Supports rich markdown content as page body. NOT for analysis outputs or agent memory from synthesis tools — use reports (via lifeos_create_report) for those.`,
+  notes_management: `Notes Management — status (New Note|Live|Priority/Highlight|Archived Note), projects (relation: array of project page IDs), knowledge_categories (relation: array of category page IDs), body (text: markdown content auto-converted to Notion page blocks). Use for large notes, meeting notes, research notes, and knowledge capture. NOT for analysis outputs or agent memory from synthesis tools — use reports (via lifeos_create_report) for those.`,
 };
 
 export interface PropertyBuilderResult {
@@ -376,7 +380,7 @@ function processProperties(
   _dbKey: DbKey,
   props: Record<string, unknown>,
   notionProps: Record<string, unknown>,
-  _children: Record<string, unknown>[]
+  children: Record<string, unknown>[]
 ): void {
   // Handle date property — supports three formats:
   // 1. Time-ranged: date + start_time + end_time (e.g., "2026-04-03", "10:30", "11:45")
@@ -420,6 +424,20 @@ function processProperties(
 
     // Skip formula fields (read-only)
     if (FORMULA_FIELDS.has(key)) continue;
+
+    // Body/content properties — convert to Notion page blocks
+    if (BODY_KEYS.has(key) && typeof value === "string" && value.length > 0) {
+      const blocks = markdownToNotionChildren(value);
+      if (blocks.length > 0) {
+        children.push(...blocks as Record<string, unknown>[]);
+      }
+      // Also add truncated preview as rich_text property
+      const notionName = PROPERTY_NAME_MAP[key];
+      if (notionName) {
+        notionProps[notionName] = { rich_text: markdownToRichText(value.substring(0, 2000)) };
+      }
+      continue;
+    }
 
     // Resolve the Notion property name
     const notionName = PROPERTY_NAME_MAP[key];
