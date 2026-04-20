@@ -119,7 +119,10 @@ export function registerPlanningOpsTool(
               }
               lines.push("");
             }
-          } catch {}
+          } catch (e) {
+            // Silently skip target loading if unavailable - not critical
+            console.error("Failed to load activity targets:", e);
+          }
         }
         if (action === "weekly_review") {
           // Overdue tasks snapshot
