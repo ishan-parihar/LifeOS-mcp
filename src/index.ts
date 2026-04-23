@@ -51,7 +51,6 @@ const server = new McpServer({
   version: "0.5.0",
 });
 
-// Layer 1: Data Access
 registerDiscoverTool(server, config, notion);
 registerQueryDbSchemaTool(server, config, notion);
 registerQueryTool(server, config, notion);
@@ -68,36 +67,23 @@ registerAlignmentTool(server, config, notion);
 registerProjectHealthTool(server, config, notion);
 registerOkrsProgressTool(server, config, notion);
 registerJournalSynthesisTool(server, config, notion);
-
-// Layer 2: Synthesis
 registerProductivityTool(server, config, notion);
 registerDailyBriefingTool(server, config, notion);
-
-// Layer 3: Temporal Analysis
 registerTemporalAnalysisTool(server, config, notion);
 registerTrajectoryTool(server, config, notion);
 registerWeekdayPatternsTool(server, config, notion);
-
-// Layer 3b: Domain-Specific Analysis
 registerHealthVitalityTool(server, config, notion);
 registerFinancialProductivityTool(server, config, notion);
 registerWeeklyReviewTool(server, config, notion);
 registerCorrelateTool(server, config, notion);
-
-// Layer 4: Temporal Hierarchy (Monthly/Quarterly)
 registerMonthlySynthesisTool(server, config, notion);
 registerQuarterlyRetrospectiveTool(server, config, notion);
-
-// Layer 4: Write Tools
 registerCreateEntryTool(server, config, notion);
 registerCreateReportTool(server, config, notion);
-// Layer 4b: Atomic Write Tools (high-frequency operations)
 registerLogActivityTool(server, config, notion);
 registerCompleteTaskTool(server, config, notion);
 registerLogTransactionTool(server, config, notion);
 registerJournalEntryTool(server, config, notion);
-
-// Layer 5: Update & Delete Tools
 registerFindEntryTool(server, config, notion);
 registerUpdateEntryTool(server, config, notion);
 registerDeleteEntryTool(server, config, notion);
@@ -105,7 +91,9 @@ registerDeleteEntryTool(server, config, notion);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("LifeOS MCP server v0.5.0 running on stdio");
 }
 
-main().catch(console.error);
+main().catch((e) => { 
+  console.error('LifeOS MCP server error:', e); 
+  process.exit(1); 
+});
